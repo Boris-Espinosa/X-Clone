@@ -26,4 +26,8 @@ const notificationSchema = new mongoose.Schema({
         ref: 'Comment',
         default: null,
     },
-    }, { timestamps: true });
+}, { timestamps: true });
+
+const Notification = mongoose.model('Notification', notificationSchema);
+
+export default Notification;
