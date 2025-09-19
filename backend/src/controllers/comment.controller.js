@@ -68,10 +68,9 @@ export const deleteComment = AsyncHandler(async (req, res) => {
         return res.status(403).json({ message: "You are not authorized to delete this comment" })
     }
 
-    await Post.findByIdAndDelete(comment.post, {
+    await Post.findByIdAndUpdate(comment.post, {
         $pull: { comments: comment._id }
     })
-
     await Comment.findByIdAndDelete(commentId)
 
     res.status(200).json({ message: "Comment deleted successfully" })

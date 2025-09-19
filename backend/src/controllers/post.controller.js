@@ -74,7 +74,7 @@ export const createPost = asyncHandler(async (req, res) => {
     let imageUrl = '';
     if (imageFile) {
         try {
-            const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+            const base64Image = `data:${imageFile.mimetype};base64,${imageFile.buffer.toString('base64')}`;
 
             const uploadResponse = await cloudinary.uploader.upload(base64Image, {
                 folder: 'social_media_posts',
