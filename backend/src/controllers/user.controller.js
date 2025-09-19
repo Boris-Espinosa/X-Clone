@@ -66,18 +66,18 @@ export const followUser = asyncHandler(async (req, res) => {
     const isFollowing = currentUser.following.includes(targetUserId)
 
     if (isFollowing) {
-        await User.findOneAndUpdate(currentUser._id, {
+        await User.findByIdAndUpdate(currentUser._id, {
             $pull: { following: targetUserId }
         })
-        await User.findOneAndUpdate(targetUser._id, {
-            $pull: { followers: userId }
+        await User.findByIdAndUpdate(targetUserId, {
+            $pull: { followers: currentUser._id }
         })
     } else {
-        await User.findOneAndUpdate(currentUser._id, {
+        await User.findByIdAndUpdate(currentUser._id, {
             $push: { following: targetUserId }
         })
-        await User.findOneAndUpdate(targetUser._id, {
-            $push: { followers: userId }
+        await User.findByIdAndUpdate(targetUserId, {
+            $push: { followers: currentUser._id }
         })
 
         await Notification.create({
