@@ -1,9 +1,8 @@
 import { usePosts } from '@/hooks/usePosts';
 import { Post, User } from '@/types'
-import { FormatDate } from '@/utils/formatters';
+import { FormatDate, formatNumber } from '@/utils/formatters';
 import { Feather } from '@expo/vector-icons';
 import { View, Text, Alert, Image, TouchableOpacity } from 'react-native';
-import { formatNumber } from '../utils/formatters';
 
 interface PostCardProps {
     post: Post;
@@ -27,6 +26,7 @@ const PostCard = ({ currentUser, onDelete, onLike, isLiked, post}:PostCardProps)
             },
         ]);
     }
+    console.log(post.user.profilePicture)
 
   return (
     <View className='bg-white border-gray-200 border-b border-b-gray-100'>

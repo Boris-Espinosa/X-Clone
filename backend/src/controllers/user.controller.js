@@ -32,7 +32,7 @@ export const syncUser = asyncHandler(async (req, res) => {
         firstName: clerkUser.firstName || '',
         lastName: clerkUser.lastName || '',
         username: clerkUser.emailAddresses[0].emailAddress.split("@")[0] || `user${Math.floor(Math.random() * 10000)}`,
-        profileImage: clerkUser.imageUrl || '',
+        profilePicture: clerkUser.imageUrl || '',
     }
 
     const user = await User.create(userData)
