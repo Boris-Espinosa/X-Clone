@@ -4,6 +4,8 @@ import { Alert } from 'react-native'
 import * as ImagePicker from 'expo-image-picker'
 import { useApiClient } from '../utils/api'
 
+//TODO: manejar el tema de las imagenes, subirlas a cloudinary y guardar el link en la base de datos
+
 const useCreatePost = () => {
     const [content, setContent] = useState('')
     const [selectedImage, setSelectedImage] = useState<string | null>(null)

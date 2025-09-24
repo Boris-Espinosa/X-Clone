@@ -1,4 +1,4 @@
-import { View, Text, TextInput, Touchable, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import useCreatePost from '../hooks/useCreatePost'
 import { useUser } from '@clerk/clerk-expo'
 import {  } from 'expo-image'

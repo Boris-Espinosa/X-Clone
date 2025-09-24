@@ -1,4 +1,4 @@
-import { View, Text, Alert, TouchableOpacity, TextInput, ScrollView, Image, Modal, Platform } from 'react-native';
+import { View, Text, Alert, TouchableOpacity, TextInput, ScrollView, Image, Modal } from 'react-native';
 import React, { useState } from 'react'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CONVERSATIONS, ConversationType } from '@/data/conversations';
