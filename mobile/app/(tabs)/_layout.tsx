@@ -7,8 +7,6 @@ import { useUserSync } from '../../hooks/useUserSync';
 const TabsLayout = () => {
     const insets = useSafeAreaInsets();
     
-    useUserSync()
-    
     const { isSignedIn } = useAuth();
     if (!isSignedIn) return <Redirect href={'/(auth)'} />
     
