@@ -68,7 +68,7 @@ export const createPost = asyncHandler(async (req, res) => {
         return res.status(400).json({ message: 'Post content or image is required' });
     }
 
-    const user = await User.findById({ clerkId: userId});
+    const user = await User.findOne({ clerkId: userId});
     if (!user) return res.status(404).json({ message: 'User not found' });
 
     let imageUrl = '';
@@ -106,7 +106,7 @@ export const likePost = asyncHandler(async (req, res) => {
     const { postId } = req.params;
 
     const user = await User.findOne({ clerkId: userId });
-    const post = await Post.findById(postId);
+    const post = await Post.find(postId);
 
     if (!user || !post) return res.status(404).json({ message: 'User or post not found' });
 
@@ -139,7 +139,7 @@ export const deletePost = asyncHandler(async (req, res) => {
     const { postId } = req.params;
 
     const user = await User.findOne({ clerkId: userId });
-    const post = await Post.findById(postId);
+    const post = await Post.find(postId);
 
     if (!user || !post) return res.status(404).json({ message: 'User or post not found' });
 
