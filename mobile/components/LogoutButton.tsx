@@ -1,6 +1,6 @@
 import { Feather } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native";
-import { useLogout } from "../app/hooks/useLogout";
+import { useLogout } from "../hooks/useLogout";
 
 
 export default function LogoutButton() {

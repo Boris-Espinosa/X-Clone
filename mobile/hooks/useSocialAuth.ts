@@ -7,8 +7,7 @@ const useSocialAuth = () => {
     const [isLoadingApple, setIsLoadingApple] = useState(false);
     const { startSSOFlow } = useSSO();
 
-    const handleSocialAuth = async (strategy:"oauth_google" | "oauth_apple", provider: "google" | "apple") => {
-        if (provider === "google") {
+    const handleSocialAuth = async (strategy: "oauth_google" | "oauth_apple", provider: "google" | "apple") => {        if (provider === "google") {
             setIsLoadingGoogle(true);
         } else setIsLoadingApple(true);
 
@@ -19,15 +18,13 @@ const useSocialAuth = () => {
             }
         } catch (error) {
             console.log("Error with social auth: ", error);
-            const provider = strategy === "oauth_google" ? "Google" : "Apple";
-            Alert.alert("Error", `There was an error signing in with ${provider}. Please try again.`);
+            const providerName = strategy === "oauth_google" ? "Google" : "Apple";
+            Alert.alert("Error", `There was an error signing in with ${providerName}. Please try again.`);
         } finally {
             if (provider === "google") {
                 setIsLoadingGoogle(false);
             } else setIsLoadingApple(false);
-        }
-
-    }
+        }    }
 
     return {isLoadingGoogle, isLoadingApple, handleSocialAuth}
 }
