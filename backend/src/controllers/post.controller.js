@@ -60,12 +60,12 @@ export const getUserPosts = asyncHandler(async (req, res) => {
 })
 
 export const createPost = asyncHandler(async (req, res) => {
-    console.log('Create Post - Starting');
+    console.log('🚀 Create Post - Starting');
     console.log('Request body:', req.body);
     console.log('Request file:', req.file ? 'File present' : 'No file');
     
     const { userId } = getAuth(req);
-    const { content, image } = req.body; // También permitir image en el body
+    const { content, image } = req.body;
     
     console.log('User ID from Clerk:', userId);
     console.log('Content:', content);
@@ -88,6 +88,12 @@ export const createPost = asyncHandler(async (req, res) => {
     let imageUrl = '';
 
     try {
+        // Verificar configuración de Cloudinary ANTES de subir
+        console.log('🔧 Cloudinary Environment Check:');
+        console.log('CLOUDINARY_CLOUD_NAME:', process.env.CLOUDINARY_CLOUD_NAME ? 'Present' : 'Missing');
+        console.log('CLOUDINARY_API_KEY:', process.env.CLOUDINARY_API_KEY ? 'Present' : 'Missing');
+        console.log('CLOUDINARY_API_SECRET:', process.env.CLOUDINARY_API_SECRET ? 'Present' : 'Missing');
+
         // Manejar imagen desde req.file (multipart/form-data)
         if (req.file) {
             console.log('📁 Processing file upload');
@@ -97,37 +103,102 @@ export const createPost = asyncHandler(async (req, res) => {
                 hasBuffer: !!req.file.buffer
             });
 
-            const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+            try {
+                const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+                
+                console.log('📋 Base64 image size:', base64Image.length, 'characters');
+                console.log('📤 Attempting Cloudinary upload...');
 
-            const uploadResponse = await cloudinary.uploader.upload(base64Image, {
-                folder: 'social_media_posts',
-                resource_type: 'image',
-                transformation: [
-                    { width: 800, height: 600, crop: 'limit' },
-                    { quality: 'auto' },
-                    { format: 'auto' },
-                ],
-            });
-            
-            imageUrl = uploadResponse.secure_url;
-            console.log('✅ Image uploaded to Cloudinary:', imageUrl);
+                const uploadResponse = await cloudinary.uploader.upload(base64Image, {
+                    folder: 'social_media_posts',
+                    resource_type: 'image',
+                    transformation: [
+                        { width: 800, height: 600, crop: 'limit' },
+                        { quality: 'auto' },
+                        { format: 'auto' },
+                    ],
+                });
+                
+                console.log('📤 Cloudinary upload response:', {
+                    public_id: uploadResponse.public_id,
+                    secure_url: uploadResponse.secure_url,
+                    format: uploadResponse.format,
+                    bytes: uploadResponse.bytes
+                });
+                
+                imageUrl = uploadResponse.secure_url;
+                console.log('✅ Image uploaded to Cloudinary:', imageUrl);
+                
+            } catch (cloudinaryError) {
+                console.error('💥 Cloudinary upload failed:', {
+                    message: cloudinaryError.message,
+                    name: cloudinaryError.name,
+                    http_code: cloudinaryError.http_code
+                });
+                
+                // Intentar upload más simple como fallback
+                console.log('🔄 Retrying with simpler upload...');
+                try {
+                    const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+                    
+                    const simpleUpload = await cloudinary.uploader.upload(base64Image, {
+                        resource_type: 'image',
+                        transformation: [
+                            { width: 800, crop: 'scale' }
+                        ],
+                    });
+                    
+                    imageUrl = simpleUpload.secure_url;
+                    console.log('✅ Simple upload successful:', imageUrl);
+                    
+                } catch (simpleError) {
+                    console.error('💥 Simple upload also failed:', simpleError.message);
+                    
+                    // Si no hay contenido y falla la imagen, es error
+                    if (!content || content.trim() === '') {
+                        return res.status(400).json({ 
+                            message: 'Failed to upload image and no text content provided',
+                            error: simpleError.message
+                        });
+                    }
+                    
+                    // Si hay contenido, continuar sin imagen
+                    console.log('⚠️ Continuing without image...');
+                    imageUrl = '';
+                }
+            }
         }
         // Manejar imagen desde req.body (base64 string)
         else if (image && image.trim() !== '') {
             console.log('📷 Processing base64 image from body');
             
-            const uploadResponse = await cloudinary.uploader.upload(image, {
-                folder: 'social_media_posts',
-                resource_type: 'image',
-                transformation: [
-                    { width: 800, height: 600, crop: 'limit' },
-                    { quality: 'auto' },
-                    { format: 'auto' },
-                ],
-            });
-            
-            imageUrl = uploadResponse.secure_url;
-            console.log('✅ Base64 image uploaded to Cloudinary:', imageUrl);
+            try {
+                const uploadResponse = await cloudinary.uploader.upload(image, {
+                    folder: 'social_media_posts',
+                    resource_type: 'image',
+                    transformation: [
+                        { width: 800, height: 600, crop: 'limit' },
+                        { quality: 'auto' },
+                        { format: 'auto' },
+                    ],
+                });
+                
+                imageUrl = uploadResponse.secure_url;
+                console.log('✅ Base64 image uploaded to Cloudinary:', imageUrl);
+                
+            } catch (cloudinaryError) {
+                console.error('💥 Cloudinary base64 upload failed:', cloudinaryError);
+                
+                if (!content || content.trim() === '') {
+                    return res.status(400).json({ 
+                        message: 'Failed to upload image and no text content provided',
+                        error: cloudinaryError.message
+                    });
+                }
+                
+                console.log('⚠️ Continuing without image...');
+                imageUrl = '';
+            }
         }
 
         const postData = {
@@ -136,7 +207,12 @@ export const createPost = asyncHandler(async (req, res) => {
             image: imageUrl,
         };
 
-        console.log('💾 Creating post with data:', postData);
+        console.log('💾 Creating post with data:', {
+            userId: postData.user,
+            contentLength: postData.content.length,
+            hasImage: !!postData.image,
+            imageUrl: postData.image ? 'Present' : 'None'
+        });
 
         const post = await Post.create(postData);
 
@@ -152,7 +228,11 @@ export const createPost = asyncHandler(async (req, res) => {
         });
 
     } catch (error) {
-        console.error('💥 Error creating post:', error);
+        console.error('💥 Error creating post:', {
+            name: error.name,
+            message: error.message,
+            stack: error.stack?.substring(0, 500) // Limitar stack trace
+        });
         
         if (error.name === 'ValidationError') {
             return res.status(400).json({ 
@@ -173,7 +253,7 @@ export const likePost = asyncHandler(async (req, res) => {
     const { postId } = req.params;
 
     const user = await User.findOne({ clerkId: userId });
-    const post = await Post.findById(postId); // Post.find()
+    const post = await Post.findById(postId);
 
     if (!user || !post) return res.status(404).json({ message: 'User or post not found' });
 
@@ -206,7 +286,7 @@ export const deletePost = asyncHandler(async (req, res) => {
     const { postId } = req.params;
 
     const user = await User.findOne({ clerkId: userId });
-    const post = await Post.findById(postId); //Post.find()
+    const post = await Post.findById(postId);
 
     if (!user || !post) return res.status(404).json({ message: 'User or post not found' });
 
@@ -214,14 +294,14 @@ export const deletePost = asyncHandler(async (req, res) => {
         return res.status(403).json({ message: 'You are not authorized to delete this post' });
     }
 
-    // delete image from cloudinary if exists
+    // Eliminar imagen de cloudinary si existe
     if (post.image) {
         try {
             const publicId = post.image.split('/').pop().split('.')[0];
             await cloudinary.uploader.destroy(`social_media_posts/${publicId}`);
-            console.log('Image deleted from Cloudinary');
+            console.log('✅ Image deleted from Cloudinary');
         } catch (error) {
-            console.error('Error deleting image from Cloudinary:', error);
+            console.error('❌ Error deleting image from Cloudinary:', error);
         }
     }
 
