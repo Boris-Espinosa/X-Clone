@@ -7,7 +7,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 
 
 const MessageScreen = () => {
-  const insests  = useSafeAreaInsets()
+  const insets = useSafeAreaInsets()
   const [searchText, setSearchText] = useState('')
   const [conversationsList, setConversationsList] = useState(CONVERSATIONS)
   const [selectedConversation, setSelectedConversation] = useState<ConversationType | null>(null)
@@ -74,8 +74,7 @@ const MessageScreen = () => {
       <ScrollView
         className='flex-1'
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 100 + insests.bottom }}
-      >
+        contentContainerStyle={{ paddingBottom: 100 + insets.bottom }}      >
         {conversationsList.map((conversation) => (
           <TouchableOpacity
             key={conversation.id}
@@ -143,8 +142,7 @@ const MessageScreen = () => {
             <ScrollView className='flex-1 px-4 py-4'>
               <View className='mb-4'>
                 <Text className='text-center text-sm text-gray-500 px-4'>
-                  This is the beggining of your direct message history with {selectedConversation.user.name}.
-                </Text>
+                  This is the beginning of your direct message history with {selectedConversation.user.name}.                </Text>
 
                 {selectedConversation.messages.map((msg) => (
                   <View

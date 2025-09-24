@@ -3,6 +3,7 @@ import { useAuth } from "@clerk/clerk-expo";
 
 const API_BASE_URL = "https://x-clone-five-lyart.vercel.app/api";
 
+// this will basically create an authenticated api, pass the token into our headers
 export const createApiClient = (getToken: () => Promise<string | null>): AxiosInstance => {
   const api = axios.create({ baseURL: API_BASE_URL });
 
