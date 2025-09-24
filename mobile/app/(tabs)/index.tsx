@@ -5,6 +5,7 @@ import LogoutButton from '@/components/LogoutButton';
 import { useUserSync } from "../../hooks/useUserSync"
 import { Ionicons } from '@expo/vector-icons';
 import PostComposer from '@/components/PostComposer';
+import PostsList from '@/components/PostsList';
 
 const HomeScreen = () => {
   useUserSync()
@@ -23,7 +24,7 @@ const HomeScreen = () => {
         >
 
           <PostComposer />
-
+          <PostsList />
         </ScrollView>
       
     </SafeAreaView>
