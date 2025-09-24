@@ -1,5 +1,5 @@
 import { Image, TouchableOpacity, View, Text, ActivityIndicator } from 'react-native';
-import useSocialAuth from "../hooks/useSocialAuth";
+import useSocialAuth from "../../hooks/useSocialAuth";
 
 export default function Index() {
 
