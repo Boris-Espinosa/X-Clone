@@ -5,6 +5,7 @@ import { useComments } from '@/hooks/useComments';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Feather } from '@expo/vector-icons';
+import { useUser } from '@clerk/clerk-expo';
 
 interface CommentsModalProps {
     selectedPost: Post | null;
@@ -60,12 +61,12 @@ const CommentsModal = ({ selectedPost, onClose}: CommentsModalProps) => {
 
             </View>
 
-            {selectedPost.comments.map((comment) => (
+            {selectedPost.comments && selectedPost.comments.length > 0 ? selectedPost.comments.map((comment) => (
                 <View key={comment._id} className='p-4 border-b border-b-gray-50 bg-white'>
                     <View className='flex-row'>
                         <Image
                             className='size-12 rounded-full mr-3'
-                            source={{ uri: comment.user.profilePicture || ""}}
+                            source={{ uri: comment.user?.profilePicture || ""}}
                             />
                         <View className='flex-1'>
                             <View className='flex-row items-center mb-1'>
@@ -77,6 +78,10 @@ const CommentsModal = ({ selectedPost, onClose}: CommentsModalProps) => {
                     </View>
                 </View>
                 )
+            ) : (
+                <View className='p-4'>
+                    <Text className='text-center text-gray-500'>No comments yet. Be the first to comment!</Text>
+                </View>
             )}
 
           </ScrollView>
@@ -86,7 +91,7 @@ const CommentsModal = ({ selectedPost, onClose}: CommentsModalProps) => {
                 <View className='flex-row'>
                     <Image
                         className='size-10 rounded-full mr-3'
-                        source={{ uri: currentUser?.profilePicture || ""}}
+                        source={{ uri: currentUser.profilePicture || ""}}
                     />
                     <View className='flex-1 items-center justify-between flex-row'>
                         <TextInput
