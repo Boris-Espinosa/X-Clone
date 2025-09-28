@@ -3,9 +3,8 @@ import React from 'react'
 import { Post } from '@/types';
 import { useComments } from '@/hooks/useComments';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Feather } from '@expo/vector-icons';
-import { useUser } from '@clerk/clerk-expo';
+
 
 interface CommentsModalProps {
     selectedPost: Post | null;
@@ -85,7 +84,7 @@ const CommentsModal = ({ selectedPost, onClose}: CommentsModalProps) => {
             )}
 
           </ScrollView>
-          <KeyboardAvoidingView behavior='padding' keyboardVerticalOffset={100}>
+          <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={100}>
 
             <View className='p-4'>
                 <View className='flex-row'>

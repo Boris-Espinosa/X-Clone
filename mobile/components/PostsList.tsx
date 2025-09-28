@@ -1,5 +1,4 @@
 import { View, Text, ActivityIndicator, TouchableOpacity } from 'react-native'
-import React from 'react'
 import { useCurrentUser } from '@/hooks/useCurrentUser'
 import { usePosts } from '@/hooks/usePosts'
 import { Post } from '@/types'

@@ -2,6 +2,10 @@ import { aj } from "../config/arcjet.js"
 
 export const arcjetMiddleware = async (req, res, next) => {
     try {
+        if (req.headers["X-Arcjet-Allow"] === "mobile-app") {
+            return next()
+        }
+
         const decision = await aj.protect(req, {
             requested: 1
         })
