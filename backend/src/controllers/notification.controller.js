@@ -24,10 +24,13 @@ export const deleteNotification = AsyncHandler(async (req, res) => {
 
     const user = await User.findOne({ clerkId: userId })
     if (!user) return res.status(404).json({ message: "User not found" })
-    
-    const notification = await Notification.findOneAndDelete({ _id: notificationId, to: user._id })
+        
+    const deletedNotification = await Notification.findOneAndDelete({ 
+        _id: notificationId,
+        to: user._id
+    })
 
-    if (!notification) return res.status(404).json({ message: "Notification not found" })
+    if (!deletedNotification) return res.status(404).json({ message: "Notification not found" })
 
     res.status(200).json({ message: "Notification deleted successfully" })
 })
