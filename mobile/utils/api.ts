@@ -1,11 +1,21 @@
 import axios, { AxiosInstance } from "axios";
 import { useAuth } from "@clerk/clerk-expo";
+import { Platform } from "react-native";
 
 const API_BASE_URL = process.env.EXPO_PLUBIC_API_URL || "https://x-clone-five-lyart.vercel.app/api";
 
 // this will basically create an authenticated api, pass the token into our headers
 export const createApiClient = (getToken: () => Promise<string | null>): AxiosInstance => {
-  const api = axios.create({ baseURL: API_BASE_URL });
+  const api = axios.create({
+    baseURL: API_BASE_URL,
+    headers: {
+      "User-Agent": "X-Clone-Mobile",
+      "X-Arcjet-Allow": "mobile-app",
+      "X-App-Platform": Platform.OS,
+      "X-App-Version": "1.0.0",
+    }
+  
+  });
 
   api.interceptors.request.use(async (config) => {
     const token = await getToken();

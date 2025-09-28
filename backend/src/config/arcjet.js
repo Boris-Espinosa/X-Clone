@@ -10,8 +10,13 @@ export const aj = arcjet({
         detectBot({
             mode: "LIVE",
             allow: [
-                "CATEGORY:SEARCH_ENGINE"
-            ]
+                "X-Clone-Moblie/1.0.0",
+                "X-Clone-Mobile/*",
+                "okhttp/*",
+                "CFNetwork/*",
+                "CATEGORY:SEARCH_ENGINE",
+            ],
+            block: ["AUTOMATED", "WEB_SCRAPER"]
         }),
 
         tokenBucket({
