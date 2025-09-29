@@ -12,7 +12,6 @@ const ProfileScreen = () => {
   const {posts: userPosts, refetch: refetchPosts, isLoading: isRefetching } = usePosts(currentUser?.username)
   const insets = useSafeAreaInsets()
   const name = currentUser?.firstName.split(" ")[0].concat(` ${currentUser.lastName?.split(" ")[0]}`) || "User"
-
   if(isLoading) {
     return (
       <View className='flex-1 justify-center items-center '>
@@ -22,7 +21,7 @@ const ProfileScreen = () => {
   }
 
   return (
-    <SafeAreaView className='flex-1 bg-white'>
+    <SafeAreaView className='flex-1 bg-white' edges={["top"]}>
       <View className='flex-row justify-between items-center px-4 py-3 border-b border-gray-100'>
         <View>
           <Text className='text-xl font-bold text-gray-900'>{name}</Text>
