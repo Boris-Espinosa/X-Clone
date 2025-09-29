@@ -41,11 +41,12 @@ const NotificationScreen = () => {
         refreshControl={
           <RefreshControl
             refreshing={isRefetching}
-            onRefresh={refetch}
+            onRefresh={() => {
+              void refetch();
+            }}
             tintColor="#1DA1F2"
             colors={["#1DA1F2"]}
-          />
-        }
+          />        }
       >
         {isLoading ? (
           <View className='flex-1 justify-center items-center p-8'>

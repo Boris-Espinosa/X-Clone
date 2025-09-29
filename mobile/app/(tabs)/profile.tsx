@@ -11,8 +11,9 @@ const ProfileScreen = () => {
   const { currentUser, isLoading } = useCurrentUser()
   const {posts: userPosts, refetch: refetchPosts, isLoading: isRefetching } = usePosts(currentUser?.username)
   const insets = useSafeAreaInsets()
-  const name = currentUser?.firstName.split(" ")[0].concat(` ${currentUser.lastName?.split(" ")[0]}`) || "User"
-
+  const first = currentUser?.firstName?.split?.(" ")?.[0]
+  const last  = currentUser?.lastName?.split?.(" ")?.[0]
+  const name  = [first, last].filter(Boolean).join(" ") || currentUser?.username || "User"
   if(isLoading) {
     return (
       <View className='flex-1 justify-center items-center '>

@@ -16,10 +16,12 @@ const HomeScreen = () => {
   
   const handlePullToRefresh = async () => {
     setIsRefetching(true)
-    await refetchPost()
-    setIsRefetching(false)
+    try {
+      await refetchPost()
+    } finally {
+      setIsRefetching(false)
+    }
   }
-
 
   useUserSync()
   return (
