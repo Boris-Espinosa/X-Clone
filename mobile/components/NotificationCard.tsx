@@ -63,7 +63,7 @@ const NotificationCard = ({ onDelete, notification }: NotificationCardProps) => 
                         {notification.comment?.content && (
                             <View className='flex-row mr-3'>
                                 <View className='bg-blue-50 p-3 rounded-lg mt-1 flex-row'>
-                                    <Text className='text-gray-700 mt-1' numberOfLines={3}>{notification.comment.content}</Text>
+                                    <Text className='text-gray-700' numberOfLines={3}>{notification.comment.content}</Text>
                                 </View>
                                 <View className='flex-1' />
                             </View>

@@ -5,7 +5,7 @@ import { useComments } from '@/hooks/useComments';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { Feather } from '@expo/vector-icons';
 
-
+//TODO: Add likes to comments
 interface CommentsModalProps {
     selectedPost: Post | null;
     onClose: () => void;
@@ -106,6 +106,7 @@ const CommentsModal = ({ selectedPost, onClose}: CommentsModalProps) => {
                         <TouchableOpacity className={` ml-3 align- py-3.5 px-6 rounded-lg self-start ${
                             commentText.trim() ? 'bg-blue-500' : 'bg-gray-300'}`}
                             onPress={() => createComment(selectedPost._id)}
+                            disabled={!commentText.trim() || isCreatingComment}
                         >
                             {isCreatingComment ? (
                                 <ActivityIndicator color="white" size="small"/>

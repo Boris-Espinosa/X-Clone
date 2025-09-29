@@ -27,7 +27,6 @@ const PostCard = ({ currentUser, onDelete, onLike, onComment, isLiked, post }:Po
             },
         ]);
     }
-    console.log(post.user.profilePicture)
 
   return (
     <View className='bg-white border-gray-200 border-b border-b-gray-100'>
@@ -45,11 +44,13 @@ const PostCard = ({ currentUser, onDelete, onLike, onComment, isLiked, post }:Po
                     </View>
                     { isOwnPost && (
                             <TouchableOpacity onPress={() => {
-                                handleDelete()
-                                refetch()
+                                    handleDelete()
+                                    refetch()
+                                    }
                                 }
-                            }>
-                                <Feather name="trash-2" size={20} color="#E0245E" />
+                                className='p-2'
+                            >
+                                <Feather name="trash" size={18} color="gray" />
                             </TouchableOpacity>
                         )
                     }
