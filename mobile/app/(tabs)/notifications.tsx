@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native'
 import { useNotifications } from '@/hooks/useNotifications'
 import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
@@ -38,6 +38,14 @@ const NotificationScreen = () => {
         className='flex-1'
         contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefetching}
+            onRefresh={refetch}
+            tintColor="#1DA1F2"
+            colors={["#1DA1F2"]}
+          />
+        }
       >
         {isLoading ? (
           <View className='flex-1 justify-center items-center p-8'>

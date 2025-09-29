@@ -28,7 +28,7 @@ export const useComments = () => {
         if (commentText.trim() === "") {
             Alert.alert("Validation Error", "Comment text cannot be empty.");
             return;
-        } 
+        }
             createCommentMutation.mutate({ postId, content: commentText.trim() });
     }
 
