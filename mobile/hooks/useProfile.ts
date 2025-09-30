@@ -42,7 +42,45 @@ export const useProfile = () => {
     }
 
     const updateFormField = (field: string, value: string) => {
-        setFormData((prev) => ({ ...prev, [field]: value }))
+        
+        setFormData((prev) => ({ ...prev, [field]: value.trimStart() }))
+    }
+
+    
+    const cleanFormData = (data: typeof formData) => {
+        return {
+            firstName: data.firstName.trim(),
+            lastName: data.lastName.trim(),
+            username: data.username.trim(),
+            bio: data.bio.trim(),
+            location: data.location.trim(),
+        }
+    }
+
+    const validateFormData = (cleanedData: typeof formData) => {
+        if (!cleanedData.firstName) {
+            Alert.alert("Error", "First name is required")
+            return false
+        }
+        if (!cleanedData.lastName) {
+            Alert.alert("Error", "Last name is required")
+            return false
+        }
+        if (!cleanedData.username) {
+            Alert.alert("Error", "Username is required")
+            return false
+        }
+        return true
+    }
+
+    const saveProfile = () => {
+        const cleanedData = cleanFormData(formData)
+        
+        if (!validateFormData(cleanedData)) {
+            return
+        }
+        
+        updateProfileMutation.mutate(cleanedData)
     }
 
     return {
@@ -50,7 +88,7 @@ export const useProfile = () => {
         openEditModal,
         closeEditModal: () => setIsEditModalVisible(false),
         formData,
-        saveProfile: () => updateProfileMutation.mutate(formData),
+        saveProfile,
         updateFormField,
         isUpdating: updateProfileMutation.isPending,
         refetch: () => queryClient.invalidateQueries({ queryKey: ['authUser'] }),

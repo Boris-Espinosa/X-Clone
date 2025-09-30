@@ -12,8 +12,9 @@ import EditProfileModal from '@/components/EditProfileModal';
 const ProfileScreen = () => {
   const { currentUser, isLoading } = useCurrentUser()
   const insets = useSafeAreaInsets()
-  const fullName = currentUser?.firstName.concat(" " + currentUser.lastName) || "User"
-
+  const fullName = currentUser
+    ? `${currentUser.firstName || ''} ${currentUser.lastName || ''}`.trim() || "User"
+    : "User"
   const {
     posts: userPosts,
     refetch: refetchPosts,

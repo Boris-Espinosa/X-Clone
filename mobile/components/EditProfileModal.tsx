@@ -17,6 +17,28 @@ interface EditProfileModalProps {
 }
 
 const EditProfileModal = ({isVisible, onClose, formData, updateFormField, saveProfile, isUpdating}: EditProfileModalProps) => {
+    
+    // Función para limitar líneas en un texto
+    const limitLines = (text: string, maxLines: number) => {
+        const lines = text.split('\n');
+        if (lines.length > maxLines) {
+            return lines.slice(0, maxLines).join('\n');
+        }
+        return text;
+    };
+
+    
+    const handleTextChange = (field: string, text: string, maxLines?: number) => {
+        let processedText = text;
+        
+        // Si se especifica un límite de líneas, aplicarlo
+        if (maxLines) {
+            processedText = limitLines(text, maxLines);
+        }
+        
+        updateFormField(field, processedText);
+    };
+
     const handleSave = () => {
         saveProfile();
         onClose();
@@ -26,7 +48,7 @@ const EditProfileModal = ({isVisible, onClose, formData, updateFormField, savePr
     <Modal visible={isVisible} animationType="slide" presentationStyle="pageSheet">
       <View className='flex-row justify-between items-center px-4 py-3 border-b border-b-gray-100 bg-white'>
         <TouchableOpacity onPress={onClose} className='p-2'>
-            <Text className='text-blue-500 text-lg'>cancel</Text>
+            <Text className='text-blue-500 text-lg'>Cancel</Text>
         </TouchableOpacity>
         <Text className='text-lg font-semibold'>Edit Profile</Text>
         <TouchableOpacity onPress={handleSave} disabled={isUpdating}>
@@ -42,9 +64,11 @@ const EditProfileModal = ({isVisible, onClose, formData, updateFormField, savePr
                     className='border border-gray-200 rounded-lg px-3 py-3 text-base mb-2'
                     maxLength={30}
                     multiline
+                    numberOfLines={1}
                     placeholder='First Name'
+                    placeholderTextColor={"#A0AEC0"}
                     value={formData.firstName}
-                    onChangeText={(text) => updateFormField('firstName', text)}
+                    onChangeText={(text) => handleTextChange('firstName', text, 1)}
                 />
             </View>
 
@@ -54,9 +78,11 @@ const EditProfileModal = ({isVisible, onClose, formData, updateFormField, savePr
                     className='border border-gray-200 rounded-lg px-3 py-3 text-base mb-2'
                     maxLength={30}
                     multiline
+                    numberOfLines={1}
                     placeholder='Last Name'
+                    placeholderTextColor={"#A0AEC0"}
                     value={formData.lastName}
-                    onChangeText={(text) => updateFormField('lastName', text)}
+                    onChangeText={(text) => handleTextChange('lastName', text, 1)}
                 />
             </View>
 
@@ -66,9 +92,11 @@ const EditProfileModal = ({isVisible, onClose, formData, updateFormField, savePr
                     className='border border-gray-200 rounded-lg px-3 py-3 text-base mb-2'
                     maxLength={20}
                     multiline
+                    numberOfLines={1}
                     placeholder='Username'
+                    placeholderTextColor={"#A0AEC0"}
                     value={formData.username}
-                    onChangeText={(text) => updateFormField('username', text)}
+                    onChangeText={(text) => handleTextChange('username', text, 1)}
                 />
             </View>
 
@@ -78,11 +106,12 @@ const EditProfileModal = ({isVisible, onClose, formData, updateFormField, savePr
                     className='border border-gray-200 rounded-lg px-3 py-3 text-base mb-2'
                     numberOfLines={3}
                     multiline
-                    maxLength={200}
-                    placeholder='Username'
+                    maxLength={161}
+                    placeholder='Bio'
+                    placeholderTextColor={"#A0AEC0"}
                     value={formData.bio}
                     textAlignVertical='top'
-                    onChangeText={(text) => updateFormField('bio', text)}
+                    onChangeText={(text) => handleTextChange('bio', text, 3)}
                 />
             </View>
 
@@ -90,11 +119,13 @@ const EditProfileModal = ({isVisible, onClose, formData, updateFormField, savePr
                 <Text className='text-gray-500 text-sm mb-2'>Location</Text>
                 <TextInput
                     className='border border-gray-200 rounded-lg px-3 py-3 text-base mb-2'
-                    placeholder='Username'
+                    placeholder='Location'
+                    placeholderTextColor={"#A0AEC0"}
                     maxLength={40}
                     multiline
+                    numberOfLines={1}
                     value={formData.location}
-                    onChangeText={(text) => updateFormField('location', text)}
+                    onChangeText={(text) => handleTextChange('location', text, 1)}
                 />
             </View>
         </View>
