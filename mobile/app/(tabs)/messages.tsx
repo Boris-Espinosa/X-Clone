@@ -202,6 +202,6 @@ const MessageScreen = () => {
   )
 }
 
-//TODO: implement real messaging functionality with backend
+//TODO: implement real messaging functionality with backend like Firebase or a custom backend
 
 export default MessageScreen

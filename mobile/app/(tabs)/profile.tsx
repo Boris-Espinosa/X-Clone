@@ -6,12 +6,33 @@ import LogoutButton from '@/components/LogoutButton';
 import { format } from 'date-fns';
 import { usePosts } from '../../hooks/usePosts';
 import PostsList from '@/components/PostsList';
+import { useProfile } from '@/hooks/useProfile';
+import EditProfileModal from '@/components/EditProfileModal';
 
 const ProfileScreen = () => {
   const { currentUser, isLoading } = useCurrentUser()
-  const {posts: userPosts, refetch: refetchPosts, isLoading: isRefetching } = usePosts(currentUser?.username)
   const insets = useSafeAreaInsets()
-  const name = currentUser?.firstName.split(" ")[0].concat(` ${currentUser.lastName?.split(" ")[0]}`) || "User"
+  const fullName = currentUser
+    ? `${currentUser.firstName || ''} ${currentUser.lastName || ''}`.trim() || "User"
+    : "User"
+  const {
+    posts: userPosts,
+    refetch: refetchPosts,
+    isLoading: isRefetching
+  } = usePosts(currentUser?.username)
+  const {
+    isEditModalVisible,
+    openEditModal,
+    closeEditModal,
+    formData,
+    saveProfile,
+    updateFormField,
+    isUpdating,
+    refetch: refetchProfile,
+  } = useProfile();
+
+
+
   if(isLoading) {
     return (
       <View className='flex-1 justify-center items-center '>
@@ -24,7 +45,7 @@ const ProfileScreen = () => {
     <SafeAreaView className='flex-1 bg-white' edges={["top"]}>
       <View className='flex-row justify-between items-center px-4 py-3 border-b border-gray-100'>
         <View>
-          <Text className='text-xl font-bold text-gray-900'>{name}</Text>
+          <Text className='text-xl font-bold text-gray-900'>{fullName}</Text>
           <Text className='text-gray-500'>{userPosts.length === 0 ? "" : userPosts.length > 1 ? userPosts.length + " Posts" : userPosts.length + " Post"}</Text>
         </View>
         <LogoutButton />
@@ -37,7 +58,10 @@ const ProfileScreen = () => {
         refreshControl={
         <RefreshControl
           refreshing={isRefetching}
-          onRefresh={refetchPosts}
+          onRefresh={() => {
+            refetchProfile()
+            refetchPosts()
+          }}
           tintColor="#1DA1F2"
           colors={["#1DA1F2"]}
         />}
@@ -54,14 +78,14 @@ const ProfileScreen = () => {
               className='size-32 rounded-full border-4 border-white bg-gray-200'
               source={{ uri: currentUser?.profilePicture || "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" }}
             />
-            <TouchableOpacity className='px-6 py-2 border border-gray-300 rounded-full active:bg-gray-100'>
+            <TouchableOpacity onPress={openEditModal} className='px-6 py-2 border border-gray-300 rounded-full active:bg-gray-100'>
               <Text className='text-gray-900 font-semibold'>Edit Profile</Text>
             </TouchableOpacity>
           </View>
 
           <View className='mt-4'>
             <View className='flex-row items-center mb-1'>
-              <Text className='font-bold text-gray-900 text-xl mr-1'>{name}</Text>
+              <Text className='font-bold text-gray-900 text-xl mr-1'>{fullName}</Text>
               <Feather name="check-circle" size={16} color="#1DA1F2" />
             </View>
             <Text className='text-gray-500 text-base mb-2'>@{currentUser?.username}</Text>
@@ -97,6 +121,15 @@ const ProfileScreen = () => {
         </View>
         <PostsList username={currentUser?.username}/>
       </ScrollView>
+
+      <EditProfileModal
+        isVisible={isEditModalVisible}
+        onClose={closeEditModal}
+        formData={formData}
+        updateFormField={updateFormField}
+        saveProfile={saveProfile}
+        isUpdating={isUpdating}
+      />
     </SafeAreaView>
   )
 }
