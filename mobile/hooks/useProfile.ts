@@ -4,6 +4,10 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useApiClient, userApi } from "@/utils/api"
 import { useCurrentUser } from "./useCurrentUser"
 
+//TODO: Implement follow and unfollow functionality
+//TODO: Implement profile and banner picture upload functionality
+
+
 export const useProfile = () => {
     const api = useApiClient()
     const queryClient = useQueryClient()
@@ -79,7 +83,7 @@ export const useProfile = () => {
         if (!validateFormData(cleanedData)) {
             return
         }
-        
+
         updateProfileMutation.mutate(cleanedData)
     }
 
