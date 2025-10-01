@@ -18,7 +18,6 @@ interface EditProfileModalProps {
 
 const EditProfileModal = ({isVisible, onClose, formData, updateFormField, saveProfile, isUpdating}: EditProfileModalProps) => {
     
-    // Función para limitar líneas en un texto
     const limitLines = (text: string, maxLines: number) => {
         const lines = text.split('\n');
         if (lines.length > maxLines) {
@@ -31,7 +30,6 @@ const EditProfileModal = ({isVisible, onClose, formData, updateFormField, savePr
     const handleTextChange = (field: string, text: string, maxLines?: number) => {
         let processedText = text;
         
-        // Si se especifica un límite de líneas, aplicarlo
         if (maxLines) {
             processedText = limitLines(text, maxLines);
         }

@@ -2,6 +2,7 @@ import asyncHandler from 'express-async-handler'
 import User from '../models/user.model.js'
 import Notification from '../models/notification.model.js'
 import { clerkClient, getAuth } from '@clerk/express'
+import cloudinary from '../config/cloudinary.js'
 
 export const getUserProfile = asyncHandler(async (req, res) => {
     const { username } = req.params
@@ -9,6 +10,81 @@ export const getUserProfile = asyncHandler(async (req, res) => {
     if (!user) return res.status(404).json({ error: 'User not found' })
 
     res.status(200).json({ user })
+})
+
+export const updateProfileBanner = asyncHandler(async (req, res) => {
+    const { userId } = getAuth(req)
+    const user = await User.findOne({ clerkId: userId })
+    if (!user) return res.status(404).json({ error: 'User not found' })
+    
+    if (!req.file) return res.status(400).json({ error: 'Banner image is required' })
+    
+    let bannerImageUrl = ""
+
+    try {
+        try {
+            const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+
+            const uploadResponse = await cloudinary.uploader.upload(base64Image, {
+                folder: 'user_banners',
+                resource_type: 'image',
+                transformation: [
+                    { width: 1500, height: 500, crop: 'limit' },
+                    { quality: 'auto' },
+                    { format: 'auto' },
+                ],
+            });
+            
+            bannerImageUrl = uploadResponse.secure_url;
+            
+        } catch (cloudinaryError) {
+            
+            try {
+                const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+                
+                const simpleUpload = await cloudinary.uploader.upload(base64Image, {
+                    folder: 'user_banners',
+                    resource_type: 'image',
+                    transformation: [
+                        { width: 1500, crop: 'scale' }
+                    ],
+                });
+                
+                bannerImageUrl = simpleUpload.secure_url;
+                
+            } catch (simpleError) {
+                return res.status(500).json({ 
+                    message: 'Failed to upload banner image',
+                    error: simpleError.message
+                });
+            }
+        }
+        
+        
+        const updatedUser = await User.findOneAndUpdate(
+            { clerkId: userId }, 
+            { bannerImage: bannerImageUrl }, 
+            { new: true }
+        )
+        
+        res.status(200).json({ 
+            user: updatedUser,
+            message: 'Banner updated successfully' 
+        })
+        
+    } catch (error) {
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({ 
+                message: 'Validation error', 
+                details: error.message 
+            });
+        }
+        
+        return res.status(500).json({ 
+            message: 'Error updating banner', 
+            details: error.message 
+        });
+    }
 })
 
 export const updateProfile = asyncHandler(async (req, res) => {

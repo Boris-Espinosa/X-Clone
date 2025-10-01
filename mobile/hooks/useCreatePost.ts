@@ -11,7 +11,7 @@ const useCreatePost = () => {
     const queryClient = useQueryClient()
 
     const createPostMutation = useMutation({
-        mutationFn: async(data: {content: string; imageUri?: string}) => {
+        mutationFn: (data: {content: string; imageUri?: string}) => {
             const formData = new FormData()
 
             if (data.content) formData.append('content', data.content)
@@ -61,7 +61,7 @@ const useCreatePost = () => {
         }
         const pickerOptions = {
             allowsEditing: true,
-            quality: 0.7,
+            quality: 0.8,
             aspect: [16, 9] as [number, number],
         }
 
@@ -72,10 +72,10 @@ const useCreatePost = () => {
                 mediaTypes: ["images"],
             })
 
-            if (!result.canceled) {
-                setSelectedImage(result.assets[0].uri)
-            }
+        if (!result.canceled) {
+            setSelectedImage(result.assets[0].uri)
         }
+    }
 
         const createPost = () => {
             if (!content.trim() && !selectedImage) {
