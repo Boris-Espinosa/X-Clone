@@ -11,6 +11,13 @@ export const getUserProfile = asyncHandler(async (req, res) => {
     res.status(200).json({ user })
 })
 
+export const updateProfileBanner = asyncHandler(async (req, res) => {
+    const { userId } = getAuth(req)
+    const { profileBanner: bannerImage } = req.body
+    const user = await User.findOneAndUpdate({ clerkId: userId }, { bannerImage }, { new: true })
+    res.status(200).json({ user })
+})
+
 export const updateProfile = asyncHandler(async (req, res) => {
     const { userId } = getAuth(req)
     const user = await User.findOneAndUpdate({ clerkId: userId }, req.body, { new: true })

@@ -1,6 +1,7 @@
 import { usePosts } from '@/hooks/usePosts';
 import { Post, User } from '@/types'
 import { FormatDate, formatNumber } from '@/utils/formatters';
+import { useUser } from '@clerk/clerk-expo';
 import { Feather } from '@expo/vector-icons';
 import { View, Text, Alert, Image, TouchableOpacity } from 'react-native';
 
@@ -14,8 +15,10 @@ interface PostCardProps {
 }
 
 const PostCard = ({ currentUser, onDelete, onLike, onComment, isLiked, post }:PostCardProps) => {
+
     const { refetch } = usePosts();
     const isOwnPost = currentUser?._id === post.user._id;
+    const { user } = useUser()
 
     const handleDelete = () => {
         Alert.alert("Delete Post", "Are you sure you want to delete this post?", [
@@ -32,7 +35,7 @@ const PostCard = ({ currentUser, onDelete, onLike, onComment, isLiked, post }:Po
     <View className='bg-white border-gray-200 border-b border-b-gray-100'>
         <View className='p-4 flex-row'>
             <Image
-                source={{ uri: post.user.profilePicture || ""}}
+                source={{ uri: user?.imageUrl || ""}}
                 className='w-12 h-12 rounded-full mr-3'
             />
 
