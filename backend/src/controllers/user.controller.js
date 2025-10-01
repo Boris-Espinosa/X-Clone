@@ -26,35 +26,86 @@ export const updateProfileBanner = asyncHandler(async (req, res) => {
     let imageUrl = ""
 
     try {
-        try {
-            const uploadResponse = await cloudinary.uploader.upload(bannerImage, {
-                folder: 'user_banners',
-                resource_type: 'image',
-                transformation: [
-                    { width: 800, height: 600, crop: 'limit' },
-                    { quality: 'auto' },
-                    { format: 'auto' },
-                ],
-            });
+        if (req.file) {
+            try {
+                const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
 
-            imageUrl = uploadResponse.secure_url;
-
-        } catch (cloudinaryError) {
-            if (!content || content.trim() === '') {
-                return res.status(400).json({ 
-                    message: 'Failed to upload image and no text content provided',
-                    error: cloudinaryError.message
+                const uploadResponse = await cloudinary.uploader.upload(base64Image, {
+                    folder: 'user_banners',
+                    resource_type: 'image',
+                    transformation: [
+                        { width: 800, height: 600, crop: 'limit' },
+                        { quality: 'auto' },
+                        { format: 'auto' },
+                    ],
                 });
+                
+                imageUrl = uploadResponse.secure_url;
+                
+            } catch (cloudinaryError) {
+                try {
+                    const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+                    
+                    const simpleUpload = await cloudinary.uploader.upload(base64Image, {
+                        resource_type: 'image',
+                        transformation: [
+                            { width: 800, crop: 'scale' }
+                        ],
+                    });
+                    
+                    imageUrl = simpleUpload.secure_url;
+                    
+                } catch (simpleError) {
+                    if (!content || content.trim() === '') {
+                        return res.status(400).json({ 
+                            message: 'Failed to upload image and no text content provided',
+                            error: simpleError.message
+                        });
+                    }
+                    imageUrl = '';
+                }
             }
-            imageUrl = '';
         }
-        user = await User.findOneAndUpdate({ clerkId: userId }, { bannerImage: imageUrl }, { new: true })
+        else if (image && image.trim() !== '') {
+            try {
+                const uploadResponse = await cloudinary.uploader.upload(bannerImage, {
+                    folder: 'user_banners',
+                    resource_type: 'image',
+                    transformation: [
+                        { width: 800, height: 600, crop: 'limit' },
+                        { quality: 'auto' },
+                        { format: 'auto' },
+                    ],
+                });
+                
+                imageUrl = uploadResponse.secure_url;
+                
+            } catch (cloudinaryError) {
+                if (!content || content.trim() === '') {
+                    return res.status(400).json({ 
+                        message: 'Failed to upload image and no text content provided',
+                        error: cloudinaryError.message
+                    });
+                }
+                imageUrl = '';
+            }
+        }
+        
+        user = await User.findOneAndUpdate({ clerkId: userId }, { imageUrl }, { new: true })
         res.status(200).json({ user })
     } catch (error) {
-        res.status(500).json({ error: 'Failed to update banner image' })
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({ 
+                message: 'Validation error', 
+                details: error.message 
+            });
+        }
+        
+        return res.status(500).json({ 
+            message: 'Error creating post', 
+            details: error.message 
+        });
     }
-    user = await User.findOneAndUpdate({ clerkId: userId }, { imageUrl }, { new: true })
-    res.status(200).json({ user })
 })
 
 export const updateProfile = asyncHandler(async (req, res) => {
