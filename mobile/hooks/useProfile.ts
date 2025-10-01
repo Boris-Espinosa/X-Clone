@@ -3,6 +3,8 @@ import { Alert } from "react-native"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useApiClient, userApi } from "@/utils/api"
 import { useCurrentUser } from "./useCurrentUser"
+import { useUser } from "@clerk/clerk-expo"
+import * as ImagePicker from 'expo-image-picker'
 
 //TODO: Implement follow and unfollow functionality
 //TODO: Implement profile and banner picture upload functionality
@@ -20,7 +22,10 @@ export const useProfile = () => {
         bio: "",
         location: "",
     })
-
+    const [profilePicture, setProfilePicture] = useState<string | null>(null)
+    const [bannerPicture, setBannerPicture] = useState<string | null>(null)
+    const { user } = useUser()
+    
     const updateProfileMutation = useMutation({
       mutationFn: (profileData: typeof formData) => userApi.updateProfile(api, profileData),
       onSuccess: () => {
@@ -31,6 +36,80 @@ export const useProfile = () => {
         Alert.alert("Error", error?.response?.data?.message || "An error occurred while updating the profile.")
     },
     })
+
+    const updateProfilePicturesMutation = useMutation({
+        mutationFn: async (imageUri: string) => {
+            if (profilePicture) {
+                return user?.setProfileImage({ file: imageUri })
+            } else if (bannerPicture) {
+                const formData = new FormData()
+                const uriParts = imageUri.split('.')
+                const fileType = uriParts[uriParts.length - 1].toLowerCase()
+
+                const mimeTypeMap: Record<string, string> = {
+                    png: 'image/png',
+                    gif: 'image/gif',
+                    webp: 'image/webp',
+                }
+                const mimeType = mimeTypeMap[fileType] || 'image/jpeg'
+
+                formData.append('bannerImage', {
+                    uri: imageUri,
+                    name: `bannerImage.${fileType}`,
+                    type: mimeType,
+                } as any)
+
+
+                return userApi.updateProfileBanner(api, formData )
+            }
+            
+        },
+        onSuccess: () => {
+            console.log("Profile picture updated successfully")
+            
+            queryClient.invalidateQueries({ queryKey: ['currentUser'] })
+            setProfilePicture(null)
+            setBannerPicture(null)
+        },
+        onError: (error: any) => {
+            console.log("Error updating profile picture:", error)
+            Alert.alert("Error", error?.response?.data?.message || "An error occurred while updating the profile pictures.")
+        }
+    })
+
+    const handleChangeImage = async (useCamera: boolean = false, isProfilePicture: boolean = false) => {
+            const permissionResult = useCamera
+                ? await ImagePicker.requestCameraPermissionsAsync()
+                : await ImagePicker.requestMediaLibraryPermissionsAsync()
+    
+            if (permissionResult.status !== "granted") {
+                const source = useCamera ? "camera" : "photos"
+                Alert.alert("Permission Denied", `Permission to access ${source} is required`)
+                return
+            }
+            const pickerOptions = {
+                allowsEditing: true,
+                quality: 0.8,
+                aspect: isProfilePicture ? [1, 1] as [number, number] : [16, 9] as [number, number],
+                base64: isProfilePicture ? true : false,
+            }
+
+            const result = useCamera
+                ? await ImagePicker.launchCameraAsync(pickerOptions)
+                : await ImagePicker.launchImageLibraryAsync({
+                    ...pickerOptions,
+                    mediaTypes: ["images"],
+                })
+    
+            if (!result.canceled && result.assets[0].uri) {
+                if (isProfilePicture) {
+                    const base64Image = `data:image/jpeg;base64,${result.assets[0].base64}`;
+                    setProfilePicture(base64Image)
+                } else {
+                    setBannerPicture(result.assets[0].uri)
+                }
+            }
+    }
 
     const openEditModal = () => {
         if (currentUser) {
@@ -77,6 +156,14 @@ export const useProfile = () => {
         return true
     }
 
+    const saveImage = () => {
+        if (profilePicture) {
+            updateProfilePicturesMutation.mutate(profilePicture)
+        } else if (bannerPicture) {
+            updateProfilePicturesMutation.mutate(bannerPicture)
+        }
+    }
+
     const saveProfile = () => {
         const cleanedData = cleanFormData(formData)
         
@@ -92,6 +179,8 @@ export const useProfile = () => {
         openEditModal,
         closeEditModal: () => setIsEditModalVisible(false),
         formData,
+        handleChangeImage,
+        saveImage,
         saveProfile,
         updateFormField,
         isUpdating: updateProfileMutation.isPending,
