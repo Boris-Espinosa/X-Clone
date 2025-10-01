@@ -2,6 +2,7 @@ import asyncHandler from 'express-async-handler'
 import User from '../models/user.model.js'
 import Notification from '../models/notification.model.js'
 import { clerkClient, getAuth } from '@clerk/express'
+import cloudinary from '../config/cloudinary.js'
 
 export const getUserProfile = asyncHandler(async (req, res) => {
     const { username } = req.params
@@ -13,8 +14,45 @@ export const getUserProfile = asyncHandler(async (req, res) => {
 
 export const updateProfileBanner = asyncHandler(async (req, res) => {
     const { userId } = getAuth(req)
-    const { profileBanner: bannerImage } = req.body
-    const user = await User.findOneAndUpdate({ clerkId: userId }, { bannerImage }, { new: true })
+    const { bannerImage } = req.body
+    const user = User.findOne({ clerkId: userId })
+    if (!user) return res.status(404).json({ error: 'User not found' })
+
+    if (!bannerImage) {
+        return res.status(400).json({ error: 'Banner image is required' })
+    }
+
+    let imageUrl = ""
+
+    try {
+        try {
+            const uploadResponse = await cloudinary.uploader.upload(bannerImage, {
+                folder: 'user_banners',
+                resource_type: 'image',
+                transformation: [
+                    { width: 800, height: 600, crop: 'limit' },
+                    { quality: 'auto' },
+                    { format: 'auto' },
+                ],
+            });
+
+            imageUrl = uploadResponse.secure_url;
+
+        } catch (cloudinaryError) {
+            if (!content || content.trim() === '') {
+                return res.status(400).json({ 
+                    message: 'Failed to upload image and no text content provided',
+                    error: cloudinaryError.message
+                });
+            }
+            imageUrl = '';
+        }
+        user = await User.findOneAndUpdate({ clerkId: userId }, { bannerImage: imageUrl }, { new: true })
+        res.status(200).json({ user })
+    } catch (error) {
+        
+    }
+    user = await User.findOneAndUpdate({ clerkId: userId }, { imageUrl }, { new: true })
     res.status(200).json({ user })
 })
 

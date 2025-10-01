@@ -42,7 +42,25 @@ export const useProfile = () => {
             if (profilePicture) {
                 return user?.setProfileImage({ file: imageUri })
             } else if (bannerPicture) {
-                return userApi.updateProfileBanner(api, { profileBanner: imageUri })
+                const formData = new FormData()
+                const uriParts = imageUri.split('.')
+                const fileType = uriParts[uriParts.length - 1].toLowerCase()
+
+                const mimeTypeMap: Record<string, string> = {
+                    png: 'image/png',
+                    gif: 'image/gif',
+                    webp: 'image/webp',
+                }
+                const mimeType = mimeTypeMap[fileType] || 'image/jpeg'
+
+                formData.append('bannerImage', {
+                    uri: imageUri,
+                    name: `image.${fileType}`,
+                    type: mimeType,
+                } as any)
+
+
+                return userApi.updateProfileBanner(api, { formData })
             }
             
         },
@@ -73,7 +91,7 @@ export const useProfile = () => {
                 allowsEditing: true,
                 quality: 0.8,
                 aspect: isProfilePicture ? [1, 1] as [number, number] : [16, 9] as [number, number],
-                base64: true,
+                base64: isProfilePicture ? true : false,
             }
 
             const result = useCamera
@@ -83,12 +101,12 @@ export const useProfile = () => {
                     mediaTypes: ["images"],
                 })
     
-            if (!result.canceled && result.assets[0].base64) {
-                const base64Image = `data:image/jpeg;base64,${result.assets[0].base64}`;
+            if (!result.canceled && result.assets[0].uri) {
                 if (isProfilePicture) {
+                    const base64Image = `data:image/jpeg;base64,${result.assets[0].base64}`;
                     setProfilePicture(base64Image)
                 } else {
-                    setBannerPicture(base64Image)
+                    setBannerPicture(result.assets[0].uri)
                 }
             }
     }
