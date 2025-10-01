@@ -14,85 +14,64 @@ export const getUserProfile = asyncHandler(async (req, res) => {
 
 export const updateProfileBanner = asyncHandler(async (req, res) => {
     const { userId } = getAuth(req)
-    const { bannerImage } = req.body
-    console.log(bannerImage)
-    const user = User.findOne({ clerkId: userId })
+    const user = await User.findOne({ clerkId: userId })
     if (!user) return res.status(404).json({ error: 'User not found' })
-
-    if (!bannerImage) {
-        return res.status(400).json({ error: 'Banner image is required' })
-    }
-
-    let imageUrl = ""
+    
+    if (!req.file) return res.status(400).json({ error: 'Banner image is required' })
+    
+    let bannerImageUrl = ""
 
     try {
-        if (req.file) {
+        try {
+            const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+
+            const uploadResponse = await cloudinary.uploader.upload(base64Image, {
+                folder: 'user_banners',
+                resource_type: 'image',
+                transformation: [
+                    { width: 1500, height: 500, crop: 'limit' },
+                    { quality: 'auto' },
+                    { format: 'auto' },
+                ],
+            });
+            
+            bannerImageUrl = uploadResponse.secure_url;
+            
+        } catch (cloudinaryError) {
+            
             try {
                 const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
-
-                const uploadResponse = await cloudinary.uploader.upload(base64Image, {
+                
+                const simpleUpload = await cloudinary.uploader.upload(base64Image, {
                     folder: 'user_banners',
                     resource_type: 'image',
                     transformation: [
-                        { width: 800, height: 600, crop: 'limit' },
-                        { quality: 'auto' },
-                        { format: 'auto' },
+                        { width: 1500, crop: 'scale' }
                     ],
                 });
                 
-                imageUrl = uploadResponse.secure_url;
+                bannerImageUrl = simpleUpload.secure_url;
                 
-            } catch (cloudinaryError) {
-                try {
-                    const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
-                    
-                    const simpleUpload = await cloudinary.uploader.upload(base64Image, {
-                        resource_type: 'image',
-                        transformation: [
-                            { width: 800, crop: 'scale' }
-                        ],
-                    });
-                    
-                    imageUrl = simpleUpload.secure_url;
-                    
-                } catch (simpleError) {
-                    if (!content || content.trim() === '') {
-                        return res.status(400).json({ 
-                            message: 'Failed to upload image and no text content provided',
-                            error: simpleError.message
-                        });
-                    }
-                    imageUrl = '';
-                }
-            }
-        }
-        else if (image && image.trim() !== '') {
-            try {
-                const uploadResponse = await cloudinary.uploader.upload(bannerImage, {
-                    folder: 'user_banners',
-                    resource_type: 'image',
-                    transformation: [
-                        { width: 800, height: 600, crop: 'limit' },
-                        { quality: 'auto' },
-                        { format: 'auto' },
-                    ],
+            } catch (simpleError) {
+                return res.status(500).json({ 
+                    message: 'Failed to upload banner image',
+                    error: simpleError.message
                 });
-                
-                imageUrl = uploadResponse.secure_url;
-                
-            } catch (cloudinaryError) {
-                if (!content || content.trim() === '') {
-                    return res.status(400).json({ 
-                        message: 'Failed to upload image and no text content provided',
-                        error: cloudinaryError.message
-                    });
-                }
-                imageUrl = '';
             }
         }
         
-        user = await User.findOneAndUpdate({ clerkId: userId }, { imageUrl }, { new: true })
-        res.status(200).json({ user })
+        
+        const updatedUser = await User.findOneAndUpdate(
+            { clerkId: userId }, 
+            { bannerImage: bannerImageUrl }, 
+            { new: true }
+        )
+        
+        res.status(200).json({ 
+            user: updatedUser,
+            message: 'Banner updated successfully' 
+        })
+        
     } catch (error) {
         if (error.name === 'ValidationError') {
             return res.status(400).json({ 
@@ -102,7 +81,7 @@ export const updateProfileBanner = asyncHandler(async (req, res) => {
         }
         
         return res.status(500).json({ 
-            message: 'Error creating post', 
+            message: 'Error updating banner', 
             details: error.message 
         });
     }

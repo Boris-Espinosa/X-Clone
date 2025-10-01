@@ -55,12 +55,12 @@ export const useProfile = () => {
 
                 formData.append('bannerImage', {
                     uri: imageUri,
-                    name: `image.${fileType}`,
+                    name: `bannerImage.${fileType}`,
                     type: mimeType,
                 } as any)
 
 
-                return userApi.updateProfileBanner(api, { formData })
+                return userApi.updateProfileBanner(api, formData )
             }
             
         },
