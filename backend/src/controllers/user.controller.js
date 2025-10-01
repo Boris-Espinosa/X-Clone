@@ -15,6 +15,7 @@ export const getUserProfile = asyncHandler(async (req, res) => {
 export const updateProfileBanner = asyncHandler(async (req, res) => {
     const { userId } = getAuth(req)
     const { bannerImage } = req.body
+    console.log(bannerImage)
     const user = User.findOne({ clerkId: userId })
     if (!user) return res.status(404).json({ error: 'User not found' })
 
@@ -50,7 +51,7 @@ export const updateProfileBanner = asyncHandler(async (req, res) => {
         user = await User.findOneAndUpdate({ clerkId: userId }, { bannerImage: imageUrl }, { new: true })
         res.status(200).json({ user })
     } catch (error) {
-        
+        res.status(500).json({ error: 'Failed to update banner image' })
     }
     user = await User.findOneAndUpdate({ clerkId: userId }, { imageUrl }, { new: true })
     res.status(200).json({ user })
