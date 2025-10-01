@@ -37,7 +37,9 @@ export const userApi = {
   syncUser: (api: AxiosInstance) => api.post("/users/sync"),
   getCurrentUser: (api: AxiosInstance) => api.get("/users/me"),
   updateProfile: (api: AxiosInstance, data: any) => api.put("/users/profile", data),
-  updateProfileBanner: (api: AxiosInstance, data: any) => api.put("/users/profile/banner", data),
+  updateProfileBanner: (api: AxiosInstance, data: any) => api.put("/users/profile/banner", data, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
 };
 
 export const postApi = {
