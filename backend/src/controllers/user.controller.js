@@ -21,7 +21,7 @@ export const updateProfileBanner = asyncHandler(async (req, res) => {
     
     let bannerImageUrl = ""
 
-    const publicId = post.image.split('/').pop().split('.')[0];
+    const publicId = user.bannerImage.split('/').pop().split('.')[0];
     await cloudinary.uploader.destroy(user.bannerImage, `user_banners/${publicId}`);
     try {
         try {
