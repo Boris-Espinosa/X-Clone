@@ -22,8 +22,6 @@ export const useProfile = () => {
         bio: "",
         location: "",
     })
-    const [profilePicture, setProfilePicture] = useState<string | null>(null)
-    const [bannerPicture, setBannerPicture] = useState<string | null>(null)
     const { user } = useUser()
     
     const updateProfileMutation = useMutation({
@@ -38,38 +36,35 @@ export const useProfile = () => {
     })
 
     const updateProfilePicturesMutation = useMutation({
-        mutationFn: async (imageUri: string) => {
-            if (profilePicture) {
+        mutationFn: async ({ imageUri, isProfile }: { imageUri: string; isProfile: boolean }) => {
+            if (isProfile) {
+                console.log("Updating profile picture...")
                 return user?.setProfileImage({ file: imageUri })
-            } else if (bannerPicture) {
+            } else {
+                console.log("Updating banner picture...")
                 const formData = new FormData()
                 const uriParts = imageUri.split('.')
                 const fileType = uriParts[uriParts.length - 1].toLowerCase()
-
+                
                 const mimeTypeMap: Record<string, string> = {
                     png: 'image/png',
                     gif: 'image/gif',
                     webp: 'image/webp',
                 }
                 const mimeType = mimeTypeMap[fileType] || 'image/jpeg'
-
+                
                 formData.append('bannerImage', {
                     uri: imageUri,
                     name: `bannerImage.${fileType}`,
                     type: mimeType,
                 } as any)
-
-
-                return userApi.updateProfileBanner(api, formData )
+                
+                return userApi.updateProfileBanner(api, formData)
             }
-            
         },
         onSuccess: () => {
             console.log("Profile picture updated successfully")
-            
             queryClient.invalidateQueries({ queryKey: ['currentUser'] })
-            setProfilePicture(null)
-            setBannerPicture(null)
         },
         onError: (error: any) => {
             console.log("Error updating profile picture:", error)
@@ -104,12 +99,12 @@ export const useProfile = () => {
             if (!result.canceled && result.assets[0].uri) {
                 if (isProfilePicture) {
                     const base64Image = `data:image/jpeg;base64,${result.assets[0].base64}`;
-                    setProfilePicture(base64Image)
+                    updateProfilePicturesMutation.mutate({ imageUri: base64Image, isProfile: true })
                 } else {
-                    setBannerPicture(result.assets[0].uri)
+                    updateProfilePicturesMutation.mutate({ imageUri: result.assets[0].uri, isProfile: false })
                 }
             }
-    }
+        }
 
     const openEditModal = () => {
         if (currentUser) {
@@ -156,14 +151,6 @@ export const useProfile = () => {
         return true
     }
 
-    const saveImage = () => {
-        if (profilePicture) {
-            updateProfilePicturesMutation.mutate(profilePicture)
-        } else if (bannerPicture) {
-            updateProfilePicturesMutation.mutate(bannerPicture)
-        }
-    }
-
     const saveProfile = () => {
         const cleanedData = cleanFormData(formData)
         
@@ -179,11 +166,13 @@ export const useProfile = () => {
         openEditModal,
         closeEditModal: () => setIsEditModalVisible(false),
         formData,
-        handleChangeImage,
-        saveImage,
         saveProfile,
         updateFormField,
         isUpdating: updateProfileMutation.isPending,
         refetch: () => queryClient.invalidateQueries({ queryKey: ['authUser'] }),
+        changeBannerFromGallery: () => handleChangeImage(false, false),
+        changeBannerFromCamera: () => handleChangeImage(true, false),
+        changeProfileFromGallery: () => handleChangeImage(false, true),
+        changeProfileFromCamera: () => handleChangeImage(true, true),
     }
 }

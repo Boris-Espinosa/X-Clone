@@ -4,6 +4,7 @@ import { FormatDate, formatNumber } from '@/utils/formatters';
 import { useUser } from '@clerk/clerk-expo';
 import { Feather } from '@expo/vector-icons';
 import { View, Text, Alert, Image, TouchableOpacity } from 'react-native';
+import { Menu, MenuTrigger, MenuOptions, MenuOption } from 'react-native-popup-menu';
 
 interface PostCardProps {
     post: Post;
@@ -44,15 +45,42 @@ const PostCard = ({ currentUser, onDelete, onLike, onComment, isLiked, post }:Po
                         <Text className='text-gray-500 ml-1'>@{post.user.username} * {FormatDate(post.createdAt)}</Text>
                     </View>
                     { isOwnPost && (
-                            <TouchableOpacity onPress={() => {
-                                    handleDelete()
-                                    refetch()
-                                    }
-                                }
-                                className='p-2'
-                            >
-                                <Feather name="trash" size={18} color="gray" />
-                            </TouchableOpacity>
+                            <Menu>
+                                <MenuTrigger
+                                    customStyles={{
+                                        triggerWrapper: {
+                                            padding: 8,
+                                        },
+                                        triggerTouchable: {
+                                            underlayColor: '#f0f0f0',
+                                            activeOpacity: 0.7,
+                                        }
+                                    }}
+                                >
+                                    <Feather name="more-horizontal" size={18} color="#657786" />
+                                </MenuTrigger>
+                                <MenuOptions
+                                    customStyles={{
+                                        optionsContainer: {
+                                            marginTop: 30,
+                                            borderRadius: 8,
+                                            padding: 4,
+                                        }
+                                    }}
+                                >
+                                    <MenuOption 
+                                        onSelect={() => {
+                                            handleDelete()
+                                            refetch()
+                                        }}
+                                    >
+                                        <View className='flex-row items-center p-3'>
+                                            <Feather name="trash" size={18} color="#E0245E" />
+                                            <Text className='ml-3 text-red-500 font-medium'>Delete Post</Text>
+                                        </View>
+                                    </MenuOption>
+                                </MenuOptions>
+                            </Menu>
                         )
                     }
                 </View>

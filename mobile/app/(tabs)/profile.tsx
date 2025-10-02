@@ -9,6 +9,13 @@ import PostsList from '@/components/PostsList';
 import { useProfile } from '@/hooks/useProfile';
 import EditProfileModal from '@/components/EditProfileModal';
 import { useUser } from '@clerk/clerk-expo';
+import {
+  Menu,
+  MenuOptions,
+  MenuOption,
+  MenuTrigger,
+  renderers,
+} from 'react-native-popup-menu';
 
 const ProfileScreen = () => {
   const { currentUser, isLoading } = useCurrentUser()
@@ -22,8 +29,10 @@ const ProfileScreen = () => {
     isLoading: isRefetching
   } = usePosts(currentUser?.username)
   const {
-    saveImage,
-    handleChangeImage,
+    changeBannerFromGallery,
+    changeBannerFromCamera,
+    changeProfileFromGallery,
+    changeProfileFromCamera,
     isEditModalVisible,
     openEditModal,
     closeEditModal,
@@ -74,7 +83,7 @@ const ProfileScreen = () => {
         source={{ uri: currentUser?.bannerImage || "https://images.unsplash.com/photo-1503264116251-35a269479413?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" }}
         resizeMode='cover'
       />
-      <TouchableOpacity className='absolute right-2 top-44 bg-white p-1 rounded-full' onPress={() => handleChangeImage(true, false).then(() => saveImage())}>
+      <TouchableOpacity className='absolute right-2 top-44 bg-white p-1 rounded-full' onPress={changeBannerFromCamera}>
         <Feather name="edit-2" size={20} color="#1DA1F2" />
       </TouchableOpacity>
 
@@ -84,7 +93,7 @@ const ProfileScreen = () => {
               className='size-32 rounded-full border-4 border-white bg-gray-200'
               source={{ uri: user?.imageUrl || "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" }}
             />
-            <TouchableOpacity className='absolute left-24 bg-white p-1 rounded-full' onPress={() => handleChangeImage(true, true).then(() => saveImage())}>
+            <TouchableOpacity className='absolute left-24 bg-white p-1 rounded-full' onPress={changeProfileFromCamera}>
               <Feather name="edit-2" size={20} color="#1DA1F2" />
             </TouchableOpacity>
             <TouchableOpacity onPress={openEditModal} className='px-6 py-2 border border-gray-300 rounded-full active:bg-gray-100'>
