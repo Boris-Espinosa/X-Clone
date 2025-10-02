@@ -1,10 +1,11 @@
 import { useState } from "react"
-import { Alert } from "react-native"
+import { Alert, Platform } from "react-native"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useApiClient, userApi } from "@/utils/api"
 import { useCurrentUser } from "./useCurrentUser"
 import { useUser } from "@clerk/clerk-expo"
 import * as ImagePicker from 'expo-image-picker'
+import * as ImageManipulator from 'expo-image-manipulator';
 
 //TODO: Implement follow and unfollow functionality
 //TODO: Implement profile and banner picture upload functionality
@@ -85,7 +86,7 @@ export const useProfile = () => {
             const pickerOptions = {
                 allowsEditing: true,
                 quality: 0.8,
-                aspect: isProfilePicture ? [1, 1] as [number, number] : [3, 1] as [number, number],
+                aspect: isProfilePicture ? [1, 1] as [number, number] : [2, 1] as [number, number],
                 base64: isProfilePicture ? true : false,
             }
 
@@ -97,11 +98,24 @@ export const useProfile = () => {
                 })
     
             if (!result.canceled && result.assets[0].uri) {
-                if (isProfilePicture) {
-                    const base64Image = `data:image/jpeg;base64,${result.assets[0].base64}`;
-                    updateProfilePicturesMutation.mutate({ imageUri: base64Image, isProfile: true })
+                if (Platform.OS === 'ios' && !isProfilePicture) {
+                    const imageContext = ImageManipulator.ImageManipulator.manipulate(result.assets[0].uri)
+                    imageContext.crop({ originX: 0, originY: 0, width: result.assets[0].width, height: result.assets[0].height / 2 })
+                    imageContext.resize({ width: 1000, height: 500 })
+                    const image = await imageContext.renderAsync()
+                    const imageUri= await image.saveAsync({
+                        format: ImageManipulator.SaveFormat.JPEG,
+                        compress: 0.8,
+                    })
+                    console.log("Cropped banner image URI:", imageUri)
+                    updateProfilePicturesMutation.mutate({ imageUri: imageUri.uri, isProfile: false })
                 } else {
-                    updateProfilePicturesMutation.mutate({ imageUri: result.assets[0].uri, isProfile: false })
+                    if (isProfilePicture) {
+                        const base64Image = `data:image/jpeg;base64,${result.assets[0].base64}`;
+                        updateProfilePicturesMutation.mutate({ imageUri: base64Image, isProfile: true })
+                    } else {
+                        updateProfilePicturesMutation.mutate({ imageUri: result.assets[0].uri, isProfile: false })
+                    }
                 }
             }
         }
