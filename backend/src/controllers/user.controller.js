@@ -22,7 +22,7 @@ export const updateProfileBanner = asyncHandler(async (req, res) => {
     let bannerImageUrl = ""
 
     const publicId = user.bannerImage.split('/').pop().split('.')[0];
-    await cloudinary.uploader.destroy(user.bannerImage, `user_banners/${publicId}`);
+    await cloudinary.uploader.destroy(`user_banners/${publicId}`);
     try {
         try {
             const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
