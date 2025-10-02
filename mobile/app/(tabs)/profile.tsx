@@ -83,20 +83,55 @@ const ProfileScreen = () => {
         source={{ uri: currentUser?.bannerImage || "https://images.unsplash.com/photo-1503264116251-35a269479413?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" }}
         resizeMode='cover'
       />
-      <TouchableOpacity className='absolute right-2 top-44 bg-white p-1 rounded-full' onPress={changeBannerFromCamera}>
-        <Feather name="edit-2" size={20} color="#1DA1F2" />
-      </TouchableOpacity>
-
         <View className='px-4 pb-4 border-b border-gray-100'>
           <View className='flex-row justify-between items-end -mt-16 -mb-4'>
             <Image
               className='size-32 rounded-full border-4 border-white bg-gray-200'
               source={{ uri: user?.imageUrl || "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" }}
             />
-            <TouchableOpacity className='absolute left-24 bg-white p-1 rounded-full' onPress={changeProfileFromCamera}>
+
+            <Menu renderer={renderers.Popover} style={{ position: 'absolute', left: 80, top: 0, zIndex: 10}}>
+            <MenuTrigger
+              customStyles={{
+                triggerWrapper: {
+                  backgroundColor: 'white',
+                  borderRadius: 9999,
+                  padding: 4,
+                  borderWidth: 1,
+                  borderColor: '#E5E7EB',
+                },
+                triggerTouchable: {
+                  underlayColor: '#F3F4F6',
+                  activeOpacity: 0.6,
+                  style: {
+                    borderRadius: 9999,
+                  }
+                }
+              }}
+            >
               <Feather name="edit-2" size={20} color="#1DA1F2" />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={openEditModal} className='px-6 py-2 border border-gray-300 rounded-full active:bg-gray-100'>
+            </MenuTrigger>
+            <MenuOptions customStyles={{optionsContainer: { marginLeft: -5, borderRadius: 10, padding: 10, marginRight: 170}}}>
+              <MenuOption onSelect={changeBannerFromCamera} style={{flexDirection: 'row', alignItems: 'center', marginBottom: 10,}}>
+                <Feather name="camera" size={20} color="#1DA1F2" />
+                <Text className='text-gray-900 text-sm font-semibold'>  Change Banner from Camera</Text>
+              </MenuOption>
+              <MenuOption onSelect={changeBannerFromGallery} style={{flexDirection: 'row', alignItems: 'center', marginBottom: 10}}>
+                <Feather name="image" size={20} color="#1DA1F2" />
+                <Text className='text-gray-900 text-sm font-semibold'>  Change Banner from Gallery</Text>
+              </MenuOption>
+              <MenuOption onSelect={changeProfileFromCamera} style={{flexDirection: 'row', alignItems: 'center', marginBottom: 10}}>
+                <Feather name="camera" size={20} color="#1DA1F2" />
+                <Text className='text-gray-900 text-sm font-semibold'>  Change Profile Picture from Camera</Text>
+              </MenuOption>
+              <MenuOption onSelect={changeProfileFromGallery} style={{flexDirection: 'row', alignItems: 'center'}}>
+                <Feather name="image" size={20} color="#1DA1F2" />
+                <Text className='text-gray-900 text-sm font-semibold'>  Change Profile Picture from Gallery</Text>
+              </MenuOption>
+            </MenuOptions>
+            </Menu>
+
+            <TouchableOpacity onPress={openEditModal} className=' top-0 px-6 py-2 border border-gray-300 rounded-full active:bg-gray-100'>
               <Text className='text-gray-900 font-semibold'>Edit Profile</Text>
             </TouchableOpacity>
           </View>
