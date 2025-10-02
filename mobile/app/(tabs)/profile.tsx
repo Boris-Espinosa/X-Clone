@@ -16,6 +16,7 @@ import {
   MenuTrigger,
   renderers,
 } from 'react-native-popup-menu';
+import { useState } from 'react';
 
 const ProfileScreen = () => {
   const { currentUser, isLoading } = useCurrentUser()
@@ -42,6 +43,8 @@ const ProfileScreen = () => {
     isUpdating,
     refetch: refetchProfile,
   } = useProfile();
+
+  const [menuLayer, setMenuLayer] = useState<"main" | "banner" | "profile" | null>("main");
 
   const { user } = useUser();
 
@@ -90,7 +93,7 @@ const ProfileScreen = () => {
               source={{ uri: user?.imageUrl || "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" }}
             />
 
-            <Menu renderer={renderers.Popover} style={{ position: 'absolute', left: 80, top: 0, zIndex: 10}}>
+            <Menu onBackdropPress={() => setMenuLayer("main")} renderer={renderers.ContextMenu} style={{ position: 'absolute', left: 78, top: 2, zIndex: 10}}>
             <MenuTrigger
               customStyles={{
                 triggerWrapper: {
@@ -111,23 +114,44 @@ const ProfileScreen = () => {
             >
               <Feather name="edit-2" size={20} color="#1DA1F2" />
             </MenuTrigger>
-            <MenuOptions customStyles={{optionsContainer: { marginLeft: -5, borderRadius: 10, padding: 10, marginRight: 170}}}>
-              <MenuOption onSelect={changeBannerFromCamera} style={{flexDirection: 'row', alignItems: 'center', marginBottom: 10,}}>
-                <Feather name="camera" size={20} color="#1DA1F2" />
-                <Text className='text-gray-900 text-sm font-semibold'>  Change Banner from Camera</Text>
-              </MenuOption>
-              <MenuOption onSelect={changeBannerFromGallery} style={{flexDirection: 'row', alignItems: 'center', marginBottom: 10}}>
-                <Feather name="image" size={20} color="#1DA1F2" />
-                <Text className='text-gray-900 text-sm font-semibold'>  Change Banner from Gallery</Text>
-              </MenuOption>
-              <MenuOption onSelect={changeProfileFromCamera} style={{flexDirection: 'row', alignItems: 'center', marginBottom: 10}}>
-                <Feather name="camera" size={20} color="#1DA1F2" />
-                <Text className='text-gray-900 text-sm font-semibold'>  Change Profile Picture from Camera</Text>
-              </MenuOption>
-              <MenuOption onSelect={changeProfileFromGallery} style={{flexDirection: 'row', alignItems: 'center'}}>
-                <Feather name="image" size={20} color="#1DA1F2" />
-                <Text className='text-gray-900 text-sm font-semibold'>  Change Profile Picture from Gallery</Text>
-              </MenuOption>
+            <MenuOptions customStyles={{optionsContainer: { marginLeft: -5, borderRadius: 10, padding: 10, marginRight: 170}, optionTouchable: { underlayColor: '#F3F4F6', activeOpacity: 0.6, style: { borderRadius: 10 }}}}>
+              {menuLayer === "main" && (
+              <>
+                <MenuOption onSelect={() => {setMenuLayer("banner"); return false}} style={{flexDirection: 'row', alignItems: 'center', marginBottom: 10}}>
+                  <Feather name="image" size={20} color="#1DA1F2" />
+                  <Text className='text-gray-900 text-sm font-semibold'>  Change Banner Picture</Text>
+                </MenuOption>
+                <MenuOption onSelect={() => {setMenuLayer("profile"); return false}} style={{flexDirection: 'row', alignItems: 'center'}}>
+                  <Feather name="user" size={20} color="#1DA1F2" />
+                  <Text className='text-gray-900 text-sm font-semibold'>  Change Profile Picture</Text>
+                </MenuOption>
+              </>
+              )}
+              {menuLayer === "banner" && (
+                <>
+                  <MenuOption onSelect={() => {changeBannerFromCamera(); setMenuLayer("main")}} style={{flexDirection: 'row', alignItems: 'center', marginBottom: 10}}>
+                    <Feather name="camera" size={20} color="#1DA1F2" />
+                    <Text className='text-gray-900 text-sm font-semibold'>  Camera</Text>
+                  </MenuOption>
+                  <MenuOption onSelect={() => {changeBannerFromGallery(); setMenuLayer("main")}} style={{flexDirection: 'row', alignItems: 'center'}}>
+                    <Feather name="image" size={20} color="#1DA1F2" />
+                    <Text className='text-gray-900 text-sm font-semibold'>  Gallery</Text>
+                  </MenuOption>
+                </>
+              )}
+                
+              {menuLayer === "profile" && (
+                <>
+                  <MenuOption onSelect={() => {changeProfileFromCamera(); setMenuLayer("main")}} style={{flexDirection: 'row', alignItems: 'center', marginBottom: 10}}>
+                    <Feather name="camera" size={20} color="#1DA1F2" />
+                    <Text className='text-gray-900 text-sm font-semibold'>  Camera</Text>
+                  </MenuOption>
+                  <MenuOption onSelect={() => {changeProfileFromGallery(); setMenuLayer("main")}} style={{flexDirection: 'row', alignItems: 'center'}}>
+                    <Feather name="image" size={20} color="#1DA1F2" />
+                    <Text className='text-gray-900 text-sm font-semibold'>  Gallery</Text>
+                  </MenuOption>
+                </>
+              )}
             </MenuOptions>
             </Menu>
 

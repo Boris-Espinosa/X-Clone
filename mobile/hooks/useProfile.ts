@@ -85,7 +85,7 @@ export const useProfile = () => {
             const pickerOptions = {
                 allowsEditing: true,
                 quality: 0.8,
-                aspect: isProfilePicture ? [1, 1] as [number, number] : [16, 9] as [number, number],
+                aspect: isProfilePicture ? [1, 1] as [number, number] : [3, 1] as [number, number],
                 base64: isProfilePicture ? true : false,
             }
 
