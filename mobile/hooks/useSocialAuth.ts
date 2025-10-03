@@ -7,7 +7,7 @@ const useSocialAuth = () => {
     const [isLoadingApple, setIsLoadingApple] = useState(false);
     const { startSSOFlow } = useSSO();
 
-    const handleSocialAuth = async (strategy: "oauth_google" | "oauth_apple", provider: "google" | "apple") => {        if (provider === "google") {
+    const handleSocialAuth = async (strategy: "oauth_google" | "oauth_apple", provider: "google" | "apple") => { if (provider === "google") {
             setIsLoadingGoogle(true);
         } else setIsLoadingApple(true);
 

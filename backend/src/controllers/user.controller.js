@@ -193,20 +193,20 @@ export const followUser = asyncHandler(async (req, res) => {
         return res.status(404).json({ error: "User not found" })
     }
 
-    const isFollowing = currentUser.following.includes(targetUserId)
+    const isFollowing = currentUser.following.some(followedId => followedId.toString() === targetUser._id.toString())
 
     if (isFollowing) {
         await User.findByIdAndUpdate(currentUser._id, {
-            $pull: { following: targetUserId }
+            $pull: { following: targetUser._id }
         })
-        await User.findByIdAndUpdate(targetUserId, {
+        await User.findByIdAndUpdate(targetUser._id, {
             $pull: { followers: currentUser._id }
         })
     } else {
         await User.findByIdAndUpdate(currentUser._id, {
-            $push: { following: targetUserId }
+            $push: { following: targetUser._id }
         })
-        await User.findByIdAndUpdate(targetUserId, {
+        await User.findByIdAndUpdate(targetUser._id, {
             $push: { followers: currentUser._id }
         })
 
