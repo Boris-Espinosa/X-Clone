@@ -9,12 +9,12 @@ import cloudinary from '../config/cloudinary.js';
 export const getPosts = asyncHandler(async (req, res) => {
     const posts = await Post.find()
         .sort({ createdAt: -1 })
-        .populate('user', 'username firstName lastName profilePicture')
+        .populate('user', 'username firstName lastName profilePicture clerkId')
         .populate({
             path: 'comments',
             populate: {
                 path: 'user',
-                select: 'username firstName lastName profilePicture',
+                select: 'username firstName lastName profilePicture clerkId',
             }
         })
 
@@ -47,12 +47,12 @@ export const getUserPosts = asyncHandler(async (req, res) => {
 
     const posts = await Post.find({ user: user._id })
         .sort({ createdAt: -1 })
-        .populate('user', 'username firstName lastName profilePicture')
+        .populate('user', 'username firstName lastName profilePicture clerkId')
         .populate({
             path: 'comments',
             populate: {
                 path: 'user',
-                select: 'username firstName lastName profilePicture',
+                select: 'username firstName lastName profilePicture clerkId',
             }
         })
 

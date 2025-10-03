@@ -1,7 +1,7 @@
 import { usePosts } from '@/hooks/usePosts';
+import { useProfile } from '@/hooks/useProfile';
 import { Post, User } from '@/types'
 import { FormatDate, formatNumber } from '@/utils/formatters';
-import { useUser } from '@clerk/clerk-expo';
 import { Feather } from '@expo/vector-icons';
 import { View, Text, Alert, Image, TouchableOpacity } from 'react-native';
 import { Menu, MenuTrigger, MenuOptions, MenuOption } from 'react-native-popup-menu';
@@ -18,6 +18,9 @@ interface PostCardProps {
 const PostCard = ({ currentUser, onDelete, onLike, onComment, isLiked, post }:PostCardProps) => {
     const { refetch } = usePosts();
     const isOwnPost = currentUser?._id === post.user._id;
+    const { hanldeFollowUser } = useProfile()
+
+    const name = post.user.lastName?.split(" ")[0].trim() ? post.user.firstName.split(" ")[0].trim() + " " + post.user.lastName?.split(" ")[0].trim() : post.user.firstName.split(" ")[0].trim()
     const handleDelete = () => {
         Alert.alert("Delete Post", "Are you sure you want to delete this post?", [
             { text: "Cancel", style: "cancel" },
@@ -40,8 +43,8 @@ const PostCard = ({ currentUser, onDelete, onLike, onComment, isLiked, post }:Po
             <View className='flex-1'>
                 <View className='flex-row justify-between items-cente mb-1'>
                     <View className='flex-row items-center'>
-                        <Text className='font-bold text-gray-900'>{post.user.firstName.split(" ", 1)} {post.user.lastName?.split(" ", 1)}</Text>
-                        <Text className='text-gray-500 ml-1'>@{post.user.username} * {FormatDate(post.createdAt)}</Text>
+                        <Text className='font-bold text-gray-900'>{ name }</Text>
+                        <Text className='text-gray-500 ml-1'> •  {FormatDate(post.createdAt)}</Text>
                     </View>
                     { isOwnPost ? (
                             <Menu>
@@ -82,10 +85,12 @@ const PostCard = ({ currentUser, onDelete, onLike, onComment, isLiked, post }:Po
                             </Menu>
                         )
                     : (
-                        <View className=''>
-                        <TouchableOpacity className='flex-row items-center rounded-2xl px-4 py-1 bg-blue-500'>
+                        <View className='py-4'>
+                        <TouchableOpacity className={`absolute flex-row items-center rounded-2xl px-4 py-1 bg-blue-500 right-0`} onPress={() => {
+                            hanldeFollowUser(post.user.clerkId)
+                            }}>
                             <Feather name="user-plus" size={18} color="white" />
-                            <Text className='ml-2 text-white'>Follow</Text>
+                            <Text className='ml-2 text-white font-semibold'>{}Follow</Text>
                         </TouchableOpacity>
                         </View>
                     )}

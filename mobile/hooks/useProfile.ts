@@ -3,7 +3,6 @@ import { Alert, Platform } from "react-native"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useApiClient, userApi } from "@/utils/api"
 import { useCurrentUser } from "./useCurrentUser"
-import { useUser } from "@clerk/clerk-expo"
 import * as ImagePicker from 'expo-image-picker'
 import * as ImageManipulator from 'expo-image-manipulator';
 
@@ -15,6 +14,7 @@ export const useProfile = () => {
     const queryClient = useQueryClient()
     const { currentUser } = useCurrentUser()
     const [isEditModalVisible, setIsEditModalVisible] = useState(false)
+    const [targetUserId, setTargetUserId] = useState("")
     const [formData, setFormData] = useState({
         firstName: "",
         lastName: "",
@@ -34,6 +34,26 @@ export const useProfile = () => {
     },
     })
 
+    const followUserMutation = useMutation({
+        mutationFn: async(targetUserId: string ) => {
+            console.log(targetUserId)
+            userApi.followUser(api, targetUserId)
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["currentUser"]})
+        },
+        onError: (error: any) => {
+            console.log("Error updating profile picture:", error)
+            Alert.alert("Error", error?.response?.data?.message || "An error occurred while trying to follow")
+        }
+    })
+
+    const hanldeFollowUser = (prev: string) => {
+        setTargetUserId(prev)
+        console.log(targetUserId)
+        followUserMutation.mutate(targetUserId)
+    }
+
     const updateProfilePicturesMutation = useMutation({
         mutationFn: async ({ imageUri, isProfile }: { imageUri: string; isProfile: boolean }) => {
 
@@ -47,7 +67,7 @@ export const useProfile = () => {
                 webp: 'image/webp',
             }
             const mimeType = mimeTypeMap[fileType] || 'image/jpeg'
-            
+
             if (isProfile) {
                 console.log("Updating profile picture...")
                 
@@ -193,5 +213,6 @@ export const useProfile = () => {
         changeBannerFromCamera: () => handleChangeImage(true, false),
         changeProfileFromGallery: () => handleChangeImage(false, true),
         changeProfileFromCamera: () => handleChangeImage(true, true),
+        hanldeFollowUser,
     }
 }

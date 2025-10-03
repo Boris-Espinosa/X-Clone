@@ -8,7 +8,6 @@ import { usePosts } from '../../hooks/usePosts';
 import PostsList from '@/components/PostsList';
 import { useProfile } from '@/hooks/useProfile';
 import EditProfileModal from '@/components/EditProfileModal';
-import { useUser } from '@clerk/clerk-expo';
 import {
   Menu,
   MenuOptions,
@@ -45,8 +44,6 @@ const ProfileScreen = () => {
   } = useProfile();
 
   const [menuLayer, setMenuLayer] = useState<"main" | "banner" | "profile" | null>("main");
-
-  const { user } = useUser();
 
   if(isLoading) {
     return (
@@ -90,7 +87,7 @@ const ProfileScreen = () => {
           <View className='flex-row justify-between items-end -mt-16 -mb-4'>
             <Image
               className='size-32 rounded-full border-4 border-white bg-gray-200'
-              source={{ uri: user?.imageUrl || "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" }}
+              source={{ uri: currentUser?.profilePicture || "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" }}
             />
 
             <Menu onBackdropPress={() => setMenuLayer("main")} renderer={renderers.ContextMenu} style={{ position: 'absolute', left: 78, top: 2, zIndex: 10}}>
@@ -155,7 +152,7 @@ const ProfileScreen = () => {
             </MenuOptions>
             </Menu>
 
-            <TouchableOpacity onPress={openEditModal} className=' top-0 px-6 py-2 border border-gray-300 rounded-full active:bg-gray-100'>
+            <TouchableOpacity onPress={openEditModal} className=' -top-4 px-6 py-2 border border-gray-300 rounded-full active:bg-gray-100'>
               <Text className='text-gray-900 font-semibold'>Edit Profile</Text>
             </TouchableOpacity>
           </View>
