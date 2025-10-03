@@ -20,7 +20,11 @@ export const updateProfilePicture = asyncHandler(async (req, res) => {
     if (!req.file) return res.status(400).json({error: "Profile picture is required"})
     
     const profilePictureId = user.profilePicture.split("/").pop().split(".")[0]
-    cloudinary.uploader.destroy(`user_profile_pictures/${profilePictureId}`)
+    try {
+        cloudinary.uploader.destroy(`user_profile_pictures/${profilePictureId}`)
+    } catch (error) {
+        //continue if it fails
+    }
     let profilePictureUrl = ""
     try {
         try {
@@ -39,7 +43,7 @@ export const updateProfilePicture = asyncHandler(async (req, res) => {
         } catch (cloudinaryError) {
             return res.status(500).json({error: "Failed to upload image"})
         }
-        const updatedUser = User.findOneAndUpdate({clerkId: userId},
+        const updatedUser = await User.findOneAndUpdate({clerkId: userId},
             {profilePicture: profilePictureUrl},
             {new: true}
         )

@@ -47,6 +47,7 @@ export const useProfile = () => {
                 webp: 'image/webp',
             }
             const mimeType = mimeTypeMap[fileType] || 'image/jpeg'
+            
             if (isProfile) {
                 console.log("Updating profile picture...")
                 
@@ -93,7 +94,7 @@ export const useProfile = () => {
                 allowsEditing: true,
                 quality: 0.8,
                 aspect: isProfilePicture ? [1, 1] as [number, number] : [2, 1] as [number, number],
-                base64: isProfilePicture ? true : false,
+                base64: false,
             }
 
             const result = useCamera
@@ -116,8 +117,7 @@ export const useProfile = () => {
                     updateProfilePicturesMutation.mutate({ imageUri: imageUri.uri, isProfile: false })
                 } else {
                     if (isProfilePicture) {
-                        const base64Image = `data:image/jpeg;base64,${result.assets[0].base64}`;
-                        updateProfilePicturesMutation.mutate({ imageUri: base64Image, isProfile: true })
+                        updateProfilePicturesMutation.mutate({ imageUri: result.assets[0].uri, isProfile: true })
                     } else {
                         updateProfilePicturesMutation.mutate({ imageUri: result.assets[0].uri, isProfile: false })
                     }
