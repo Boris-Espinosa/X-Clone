@@ -8,7 +8,6 @@ import * as ImagePicker from 'expo-image-picker'
 import * as ImageManipulator from 'expo-image-manipulator';
 
 //TODO: Implement follow and unfollow functionality
-//TODO: Implement profile and banner picture upload functionality
 
 
 export const useProfile = () => {
@@ -40,7 +39,7 @@ export const useProfile = () => {
         mutationFn: async ({ imageUri, isProfile }: { imageUri: string; isProfile: boolean }) => {
             if (isProfile) {
                 console.log("Updating profile picture...")
-                return user?.setProfileImage({ file: imageUri })
+                user?.setProfileImage({ file: imageUri })
             } else {
                 console.log("Updating banner picture...")
                 const formData = new FormData()
@@ -107,7 +106,6 @@ export const useProfile = () => {
                         format: ImageManipulator.SaveFormat.JPEG,
                         compress: 0.8,
                     })
-                    console.log("Cropped banner image URI:", imageUri)
                     updateProfilePicturesMutation.mutate({ imageUri: imageUri.uri, isProfile: false })
                 } else {
                     if (isProfilePicture) {

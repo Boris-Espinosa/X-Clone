@@ -91,8 +91,10 @@ export const updateProfileBanner = asyncHandler(async (req, res) => {
 
 export const updateProfile = asyncHandler(async (req, res) => {
     const { userId } = getAuth(req)
-    const user = await User.findOneAndUpdate({ clerkId: userId }, req.body, { new: true })
+    const clerkUser = await clerkClient.users.getUser(userId)
+    const user = await User.findOneAndUpdate({ clerkId: userId }, req.body + clerkUser.imageUrl, { new: true })
     if (!user) return res.status(404).json({ error: 'User not found' })
+    
     res.status(200).json({ user })
 })
 

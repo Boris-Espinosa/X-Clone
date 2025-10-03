@@ -44,7 +44,7 @@ const PostCard = ({ currentUser, onDelete, onLike, onComment, isLiked, post }:Po
                         <Text className='font-bold text-gray-900'>{post.user.firstName.split(" ", 1)} {post.user.lastName?.split(" ", 1)}</Text>
                         <Text className='text-gray-500 ml-1'>@{post.user.username} * {FormatDate(post.createdAt)}</Text>
                     </View>
-                    { isOwnPost && (
+                    { isOwnPost ? (
                             <Menu>
                                 <MenuTrigger
                                     customStyles={{
@@ -82,7 +82,14 @@ const PostCard = ({ currentUser, onDelete, onLike, onComment, isLiked, post }:Po
                                 </MenuOptions>
                             </Menu>
                         )
-                    }
+                    : (
+                        <View className=''>
+                        <TouchableOpacity className='flex-row items-center rounded-2xl px-4 py-1 bg-blue-500'>
+                            <Feather name="user-plus" size={18} color="white" />
+                            <Text className='ml-2 text-white'>Follow</Text>
+                        </TouchableOpacity>
+                        </View>
+                    )}
                 </View>
 
                 {post.content && (
