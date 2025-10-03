@@ -22,7 +22,6 @@ export const useProfile = () => {
         bio: "",
         location: "",
     })
-    const { user } = useUser()
     
     const updateProfileMutation = useMutation({
       mutationFn: (profileData: typeof formData) => userApi.updateProfile(api, profileData),
@@ -37,21 +36,29 @@ export const useProfile = () => {
 
     const updateProfilePicturesMutation = useMutation({
         mutationFn: async ({ imageUri, isProfile }: { imageUri: string; isProfile: boolean }) => {
+
+            const formData = new FormData()
+            const uriParts = imageUri.split('.')
+            const fileType = uriParts[uriParts.length - 1].toLowerCase()
+            
+            const mimeTypeMap: Record<string, string> = {
+                png: 'image/png',
+                gif: 'image/gif',
+                webp: 'image/webp',
+            }
+            const mimeType = mimeTypeMap[fileType] || 'image/jpeg'
             if (isProfile) {
                 console.log("Updating profile picture...")
-                user?.setProfileImage({ file: imageUri })
+                
+                formData.append('profileImage', {
+                    uri: imageUri,
+                    name: `profileImage.${fileType}`,
+                    type: mimeType,
+                } as any)
+
+                return userApi.updateProfilePicture(api, formData)
             } else {
                 console.log("Updating banner picture...")
-                const formData = new FormData()
-                const uriParts = imageUri.split('.')
-                const fileType = uriParts[uriParts.length - 1].toLowerCase()
-                
-                const mimeTypeMap: Record<string, string> = {
-                    png: 'image/png',
-                    gif: 'image/gif',
-                    webp: 'image/webp',
-                }
-                const mimeType = mimeTypeMap[fileType] || 'image/jpeg'
                 
                 formData.append('bannerImage', {
                     uri: imageUri,

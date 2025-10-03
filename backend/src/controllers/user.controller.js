@@ -12,6 +12,52 @@ export const getUserProfile = asyncHandler(async (req, res) => {
     res.status(200).json({ user })
 })
 
+export const updateProfilePicture = asyncHandler(async (req, res) => {
+    const { userId } = getAuth(req)
+    const user = await User.findOne({ clerkId: userId })
+    if (!user) return res.status(404).json({ error: 'User not found' })
+
+    if (!req.file) return res.status(400).json({error: "Profile picture is required"})
+    
+    const profilePictureId = user.profilePicture.split("/").pop().split(".")[0]
+    cloudinary.uploader.destroy(`user_profile_pictures/${profilePictureId}`)
+    let profilePictureUrl = ""
+    try {
+        try {
+            const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+    
+            const uploadResponse = await cloudinary.uploader.upload(base64Image, {
+                folder: "user_profile_pictures",
+                resource_type: "image",
+                transformation: [
+                    { quality: "auto" },
+                    { format: "auto" },
+                    { width: 1080, height: 1080, crop: "limit" }
+                ]
+            })
+            profilePictureUrl = uploadResponse.secure_url
+        } catch (cloudinaryError) {
+            return res.status(500).json({error: "Failed to upload image"})
+        }
+        const updatedUser = User.findOneAndUpdate({clerkId: userId},
+            {profilePicture: profilePictureUrl},
+            {new: true}
+        )
+        res.status(200).json({user: updatedUser, message: "User profile picture updated succesfully"})
+    } catch (error) {
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({
+                message: 'Validation error',
+                details: error.message
+            });
+        }
+        return res.status(500).json({
+            error: "Failed to update profile picture",
+            details: error.message
+        })
+    }
+})
+
 export const updateProfileBanner = asyncHandler(async (req, res) => {
     const { userId } = getAuth(req)
     const user = await User.findOne({ clerkId: userId })
@@ -21,8 +67,8 @@ export const updateProfileBanner = asyncHandler(async (req, res) => {
     
     let bannerImageUrl = ""
 
-    const publicId = user.bannerImage.split('/').pop().split('.')[0];
-    await cloudinary.uploader.destroy(`user_banners/${publicId}`);
+    const bannerId = user.bannerImage.split('/').pop().split('.')[0];
+    await cloudinary.uploader.destroy(`user_banners/${bannerId}`);
     try {
         try {
             const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
@@ -31,7 +77,7 @@ export const updateProfileBanner = asyncHandler(async (req, res) => {
                 folder: 'user_banners',
                 resource_type: 'image',
                 transformation: [
-                    { width: 1500, height: 500, crop: 'limit' },
+                    { width: 1000, height: 500, crop: 'limit' },
                     { quality: 'auto' },
                     { format: 'auto' },
                 ],
@@ -48,7 +94,7 @@ export const updateProfileBanner = asyncHandler(async (req, res) => {
                     folder: 'user_banners',
                     resource_type: 'image',
                     transformation: [
-                        { width: 1500, crop: 'scale' }
+                        { width: 1000, height: 500, crop: 'scale' }
                     ],
                 });
                 
@@ -92,7 +138,6 @@ export const updateProfileBanner = asyncHandler(async (req, res) => {
 export const updateProfile = asyncHandler(async (req, res) => {
     const { userId } = getAuth(req)
     const clerkUser = await clerkClient.users.getUser(userId)
-    req.body.profilePicture = clerkUser.imageUrl
     const user = await User.findOneAndUpdate({ clerkId: userId }, req.body, { new: true })
     if (!user) return res.status(404).json({ error: 'User not found' })
     

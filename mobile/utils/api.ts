@@ -1,4 +1,4 @@
-import axios, { AxiosInstance } from "axios";
+import axios, { Axios, AxiosInstance } from "axios";
 import { useAuth } from "@clerk/clerk-expo";
 import { Platform } from "react-native";
 
@@ -40,6 +40,9 @@ export const userApi = {
   updateProfileBanner: (api: AxiosInstance, data: any) => api.put("/users/profile/banner", data, {
     headers: { 'Content-Type': 'multipart/form-data' }
   }),
+  updateProfilePicture: (api: AxiosInstance, data: any) => api.put("/users/profile/picture", data, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  })
 };
 
 export const postApi = {
