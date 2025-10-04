@@ -34,26 +34,6 @@ export const useProfile = () => {
     },
     })
 
-    const followUserMutation = useMutation({
-        mutationFn: async(targetUserId: string ) => {
-            console.log(targetUserId)
-            userApi.followUser(api, targetUserId)
-        },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["currentUser"]})
-        },
-        onError: (error: any) => {
-            console.log("Error updating profile picture:", error)
-            Alert.alert("Error", error?.response?.data?.message || "An error occurred while trying to follow")
-        }
-    })
-
-    const hanldeFollowUser = (prev: string) => {
-        setTargetUserId(prev)
-        console.log(targetUserId)
-        followUserMutation.mutate(targetUserId)
-    }
-
     const updateProfilePicturesMutation = useMutation({
         mutationFn: async ({ imageUri, isProfile }: { imageUri: string; isProfile: boolean }) => {
 
@@ -213,6 +193,5 @@ export const useProfile = () => {
         changeBannerFromCamera: () => handleChangeImage(true, false),
         changeProfileFromGallery: () => handleChangeImage(false, true),
         changeProfileFromCamera: () => handleChangeImage(true, true),
-        hanldeFollowUser,
     }
 }

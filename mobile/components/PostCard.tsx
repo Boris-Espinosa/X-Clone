@@ -1,5 +1,5 @@
+import { useFollow } from '@/hooks/useFollow';
 import { usePosts } from '@/hooks/usePosts';
-import { useProfile } from '@/hooks/useProfile';
 import { Post, User } from '@/types'
 import { FormatDate, formatNumber } from '@/utils/formatters';
 import { Feather } from '@expo/vector-icons';
@@ -18,9 +18,9 @@ interface PostCardProps {
 const PostCard = ({ currentUser, onDelete, onLike, onComment, isLiked, post }:PostCardProps) => {
     const { refetch } = usePosts();
     const isOwnPost = currentUser?._id === post.user._id;
-    const { hanldeFollowUser } = useProfile()
-
+    const { followUser } = useFollow()
     const name = post.user.lastName?.split(" ")[0].trim() ? post.user.firstName.split(" ")[0].trim() + " " + post.user.lastName?.split(" ")[0].trim() : post.user.firstName.split(" ")[0].trim()
+    const isFollowingAuthor = post.user.followers.includes(currentUser._id) || false
     const handleDelete = () => {
         Alert.alert("Delete Post", "Are you sure you want to delete this post?", [
             { text: "Cancel", style: "cancel" },
@@ -31,7 +31,7 @@ const PostCard = ({ currentUser, onDelete, onLike, onComment, isLiked, post }:Po
             },
         ]);
     }
-
+    
   return (
     <View className='bg-white border-gray-200 border-b border-b-gray-100'>
         <View className='p-4 flex-row'>
@@ -84,13 +84,22 @@ const PostCard = ({ currentUser, onDelete, onLike, onComment, isLiked, post }:Po
                                 </MenuOptions>
                             </Menu>
                         )
-                    : (
+                    : isFollowingAuthor ? (
                         <View className='py-4'>
                         <TouchableOpacity className={`absolute flex-row items-center rounded-2xl px-4 py-1 bg-blue-500 right-0`} onPress={() => {
-                            hanldeFollowUser(post.user.clerkId)
+                            followUser(post.user)
                             }}>
                             <Feather name="user-plus" size={18} color="white" />
                             <Text className='ml-2 text-white font-semibold'>{}Follow</Text>
+                        </TouchableOpacity>
+                        </View>
+                    ) : (
+                        <View className='py-4'>
+                        <TouchableOpacity className={`absolute flex-row items-center rounded-2xl px-4 py-1 bg-blue-500 right-0`} onPress={() => {
+                            followUser(post.user)
+                            }}>
+                            <Feather name="user-plus" size={18} color="white" />
+                            <Text className='ml-2 text-white font-semibold'>{}</Text>
                         </TouchableOpacity>
                         </View>
                     )}
