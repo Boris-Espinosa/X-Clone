@@ -1,5 +1,4 @@
 import { useFollow } from '@/hooks/useFollow';
-import { usePosts } from '@/hooks/usePosts';
 import { Post, User } from '@/types'
 import { FormatDate, formatNumber } from '@/utils/formatters';
 import { Feather } from '@expo/vector-icons';
@@ -16,11 +15,18 @@ interface PostCardProps {
 }
 
 const PostCard = ({ currentUser, onDelete, onLike, onComment, isLiked, post }:PostCardProps) => {
-    const { refetch } = usePosts();
+    
     const isOwnPost = currentUser?._id === post.user._id;
-    const { followUser } = useFollow()
-    const name = post.user.lastName?.split(" ")[0].trim() ? post.user.firstName.split(" ")[0].trim() + " " + post.user.lastName?.split(" ")[0].trim() : post.user.firstName.split(" ")[0].trim()
-    const isFollowingAuthor = post.user.followers.includes(currentUser._id) || false
+
+    const { followUser, isLoading } = useFollow()
+
+    const name = post.user.lastName?.split(" ")[0].trim() ?
+        post.user.firstName.split(" ")[0].trim() + " " + post.user.lastName?.split(" ")[0].trim() :
+        post.user.firstName.split(" ")[0].trim()
+
+    const isFollowingAuthor = Array.isArray(post.user.followers) &&
+        post.user.followers.some(followerId => followerId.toString() === currentUser._id.toString());
+
     const handleDelete = () => {
         Alert.alert("Delete Post", "Are you sure you want to delete this post?", [
             { text: "Cancel", style: "cancel" },
@@ -31,7 +37,10 @@ const PostCard = ({ currentUser, onDelete, onLike, onComment, isLiked, post }:Po
             },
         ]);
     }
-    
+
+    const handleFollowToggle = () => {
+        followUser(post.user.clerkId)
+    }
   return (
     <View className='bg-white border-gray-200 border-b border-b-gray-100'>
         <View className='p-4 flex-row'>
@@ -46,13 +55,11 @@ const PostCard = ({ currentUser, onDelete, onLike, onComment, isLiked, post }:Po
                         <Text className='font-bold text-gray-900'>{ name }</Text>
                         <Text className='text-gray-500 ml-1'> •  {FormatDate(post.createdAt)}</Text>
                     </View>
+                    
                     { isOwnPost ? (
                             <Menu>
                                 <MenuTrigger
                                     customStyles={{
-                                        triggerWrapper: {
-                                            padding: 8,
-                                        },
                                         triggerTouchable: {
                                             underlayColor: '#f0f0f0',
                                             activeOpacity: 0.7,
@@ -71,10 +78,7 @@ const PostCard = ({ currentUser, onDelete, onLike, onComment, isLiked, post }:Po
                                     }}
                                 >
                                     <MenuOption 
-                                        onSelect={() => {
-                                            handleDelete()
-                                            refetch()
-                                        }}
+                                        onSelect={handleDelete}
                                     >
                                         <View className='flex-row items-center p-3'>
                                             <Feather name="trash" size={18} color="#E0245E" />
@@ -85,23 +89,42 @@ const PostCard = ({ currentUser, onDelete, onLike, onComment, isLiked, post }:Po
                             </Menu>
                         )
                     : isFollowingAuthor ? (
-                        <View className='py-4'>
-                        <TouchableOpacity className={`absolute flex-row items-center rounded-2xl px-4 py-1 bg-blue-500 right-0`} onPress={() => {
-                            followUser(post.user)
-                            }}>
-                            <Feather name="user-plus" size={18} color="white" />
-                            <Text className='ml-2 text-white font-semibold'>{}Follow</Text>
-                        </TouchableOpacity>
-                        </View>
+                        <Menu>
+                            <MenuTrigger
+                                    customStyles={{
+                                        triggerWrapper: {
+                                            padding: 8,
+                                        },
+                                        triggerTouchable: {
+                                            underlayColor: '#f0f0f0',
+                                            activeOpacity: 0.7,
+                                        }
+                                    }}
+                                >
+                                    <Feather name="more-horizontal" size={18} color="#657786" />
+                                </MenuTrigger>
+                            <MenuOptions>
+                                <MenuOption
+                                onSelect={handleFollowToggle}
+                                disabled={isLoading}
+                                >
+                                    <View className='flex-row items-center p-3'>
+                                        <Feather name="user-minus" size={18} color="#E0245E" />
+                                        <Text className='ml-3 text-red-500 font-medium'>Unfollow</Text>
+                                    </View>
+                                </MenuOption>
+                                </MenuOptions>
+                        </Menu>
                     ) : (
-                        <View className='py-4'>
-                        <TouchableOpacity className={`absolute flex-row items-center rounded-2xl px-4 py-1 bg-blue-500 right-0`} onPress={() => {
-                            followUser(post.user)
-                            }}>
-                            <Feather name="user-plus" size={18} color="white" />
-                            <Text className='ml-2 text-white font-semibold'>{}</Text>
-                        </TouchableOpacity>
-                        </View>
+                        <>
+                            <View className='flex-1 my-5'/>
+                            <TouchableOpacity className={`absolute flex-row items-center rounded-2xl p-1 bg-blue-500 -left-8 top-8`}
+                            onPress={handleFollowToggle}
+                            disabled={isLoading}
+                            >
+                                <Feather name="user-plus" size={10} color="white" />
+                            </TouchableOpacity>
+                        </>
                     )}
                 </View>
 
@@ -120,7 +143,6 @@ const PostCard = ({ currentUser, onDelete, onLike, onComment, isLiked, post }:Po
                     <TouchableOpacity className='flex-row items-center'
                         onPress={() => {
                             onLike(post._id)
-                            refetch()
                         }}
                     >
                         <Feather name={isLiked ? "heart" : "heart"} size={18} color={isLiked ? "#E0245E" : "#657786"} />

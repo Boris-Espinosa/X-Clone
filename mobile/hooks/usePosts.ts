@@ -13,17 +13,29 @@ export const usePosts = (username?: string) => {
 
     const likePostMutation = useMutation({
         mutationFn: (postId: string) => postApi.likePost(api, postId),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['posts'] })
-            if (username) queryClient.invalidateQueries({ queryKey: ['userPosts', username] })
+        onSuccess: async() => {
+            await queryClient.invalidateQueries({
+                queryKey: ['posts'],
+                refetchType: "active"
+            })
+            if (username) await queryClient.invalidateQueries({
+                queryKey: ['userPosts', username],
+                refetchType: "active"
+            })
         }
     })
 
     const deletePostMutation = useMutation({
         mutationFn: (postId: string) => postApi.deletePost(api, postId),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['posts'] })
-            if (username) queryClient.invalidateQueries({ queryKey: ['userPosts', username] })
+        onSuccess: async() => {
+            await queryClient.invalidateQueries({
+                queryKey: ['posts'],
+                refetchType: "active"
+            })
+            if (username) await queryClient.invalidateQueries({
+                queryKey: ['userPosts', username],
+                refetchType: "active"
+            })
         }
     })
 

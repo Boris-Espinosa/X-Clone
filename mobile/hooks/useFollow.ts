@@ -1,36 +1,42 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { useApiClient, userApi } from '../utils/api';
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useApiClient, userApi } from '@/utils/api';
 import { Alert } from "react-native";
-import { useState } from "react";
-import { User } from "@/types";
 
 export const useFollow = () => {
-    const api = useApiClient()
-    const queryClient = useQueryClient()
-    const [targetUser, setTargetUser] = useState("")
+    const api = useApiClient();
+    const queryClient = useQueryClient();
 
-    const useFollowMutation = useMutation({
-        mutationFn: async(targetUser: User) => {
-            setTargetUser(targetUser.username)
-            console.log("trying follow User...")
-            console.log(targetUser.clerkId)
-            await userApi.followUser(api, targetUser.clerkId)
-            await userApi.getUserProfile(api, targetUser.username)
+    const followMutation = useMutation({
+        mutationFn: (targetClerkId: string) => {
+            console.log('🎯 Following user with clerkId:', targetClerkId);
+            return userApi.followUser(api, targetClerkId);
         },
-        onSuccess: async() => {
-            console.log("User followed succesfully")
-            await queryClient.invalidateQueries({queryKey: ["currentUser"]})
-            await queryClient.invalidateQueries({queryKey: ["userProfile", targetUser]})
-            setTargetUser("")
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({
+                queryKey: ['posts'],
+                refetchType: 'active'
+            });
+            await queryClient.invalidateQueries({
+                queryKey: ['currentUser'],
+                refetchType: 'active'
+            });
+            await queryClient.invalidateQueries({
+                queryKey: ['userPosts'],
+                refetchType: 'active'
+            });
         },
-        onError: (error) => {
-            setTargetUser("")
-            Alert.alert("Error", error?.message || "An error ocured while trying to follow")
-        }
-    })
+        onError: (error: any) => {
+            Alert.alert(
+                'Error',
+                error?.response?.data?.error || 'Failed to follow/unfollow user'
+            );
+        },
+    });
+
     return {
-        followUser: (targetUser: User) => useFollowMutation.mutate(targetUser)
-    }
-}
+        followUser: followMutation.mutate,
+        isLoading: followMutation.isPending,
+    };
+};
 
 
