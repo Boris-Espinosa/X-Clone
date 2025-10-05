@@ -45,7 +45,19 @@ export const useComments = () => {
         }
     })
 
+    const likeCommentMutation = useMutation({
+        mutationFn: (commentId: string) => commentApi.likeComment(api, commentId),
+        onSuccess: async() => {
+            queryClient.invalidateQueries({
+                queryKey: ["posts"],
+                refetchType: "active"
+            })
+        }
+    })
+
     return {
+        likeComment: (commentId: string) => likeCommentMutation.mutate(commentId),
+        isLikingComment: likeCommentMutation.isPending,
         isDeletingComment: deleteCommentMutation.isPending,
         deleteComment: (commentId: string) => deleteCommentMutation.mutate(commentId),
         commentText,

@@ -13,7 +13,7 @@ interface CommentsModalProps {
 
 const CommentsModal = ({ selectedPost, onClose}: CommentsModalProps) => {
 
-    const { commentText, setCommentText, createComment, isCreatingComment, deleteComment, isDeletingComment } = useComments();
+    const { commentText, setCommentText, createComment, isCreatingComment, deleteComment, isDeletingComment, isLikingComment, likeComment } = useComments();
 
     const { currentUser } = useCurrentUser();
 
@@ -81,7 +81,7 @@ const CommentsModal = ({ selectedPost, onClose}: CommentsModalProps) => {
                                     </TouchableOpacity>
                                 ) : (
                                     <View className='items-center'>
-                                        <TouchableOpacity>
+                                        <TouchableOpacity onPress={() => likeComment(comment._id)} disabled={isLikingComment}>
                                             <Feather name='heart' size={16} color={"#657786"} />
                                         </TouchableOpacity>
                                         <Text className='text-gray-500 text-xs mt-1 text-center'>{comment.likes.length}</Text>
