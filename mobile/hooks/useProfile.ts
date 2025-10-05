@@ -14,7 +14,6 @@ export const useProfile = () => {
     const queryClient = useQueryClient()
     const { currentUser } = useCurrentUser()
     const [isEditModalVisible, setIsEditModalVisible] = useState(false)
-    const [targetUserId, setTargetUserId] = useState("")
     const [formData, setFormData] = useState({
         firstName: "",
         lastName: "",

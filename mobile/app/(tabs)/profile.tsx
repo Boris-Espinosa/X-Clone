@@ -17,6 +17,10 @@ import {
 } from 'react-native-popup-menu';
 import { useState } from 'react';
 
+//TODO: add expand image when clicking
+//TODO: add go to profile when clicking users on home screen
+//TODO: add modal to show followers/following and filter by name
+
 const ProfileScreen = () => {
   const { currentUser, isLoading } = useCurrentUser()
   const insets = useSafeAreaInsets()
@@ -78,17 +82,21 @@ const ProfileScreen = () => {
           colors={["#1DA1F2"]}
         />}
       >
-      <Image
-        className='w-full h-48 bg-gray-200'
-        source={{ uri: currentUser?.bannerImage || "https://images.unsplash.com/photo-1503264116251-35a269479413?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" }}
-        resizeMode='cover'
-      />
+      <TouchableOpacity>
+        <Image
+          className='w-full h-48 bg-gray-200'
+          source={{ uri: currentUser?.bannerImage || "https://images.unsplash.com/photo-1503264116251-35a269479413?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" }}
+          resizeMode='cover'
+        />
+      </TouchableOpacity>
         <View className='px-4 pb-4 border-b border-gray-100'>
           <View className='flex-row justify-between items-end -mt-16 -mb-4'>
-            <Image
-              className='size-32 rounded-full border-4 border-white bg-gray-200'
-              source={{ uri: currentUser?.profilePicture || "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" }}
-            />
+            <TouchableOpacity>
+              <Image
+                className='size-32 rounded-full border-4 border-white bg-gray-200'
+                source={{ uri: currentUser?.profilePicture || "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" }}
+              />
+            </TouchableOpacity>
 
             <Menu onBackdropPress={() => setMenuLayer("main")} renderer={renderers.ContextMenu} style={{ position: 'absolute', left: 78, top: 2, zIndex: 10}}>
             <MenuTrigger

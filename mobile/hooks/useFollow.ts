@@ -7,10 +7,7 @@ export const useFollow = () => {
     const queryClient = useQueryClient();
 
     const followMutation = useMutation({
-        mutationFn: (targetClerkId: string) => {
-            console.log('🎯 Following user with clerkId:', targetClerkId);
-            return userApi.followUser(api, targetClerkId);
-        },
+        mutationFn: (targetClerkId: string) => userApi.followUser(api, targetClerkId),
         onSuccess: async () => {
             await queryClient.invalidateQueries({
                 queryKey: ['posts'],

@@ -65,6 +65,7 @@ const CommentsModal = ({ selectedPost, onClose}: CommentsModalProps) => {
             {selectedPost.comments && selectedPost.comments.length > 0 ? selectedPost.comments.map((comment, counter = 0) => {
                     const isOwnComment = selectedPost.comments[counter].user._id === currentUser._id
                     counter++
+                    const hasLiked = comment.likes.includes(currentUser._id)
                 return (
                 <View key={comment._id} className='p-4 border-b border-b-gray-50 bg-white'>
                     <View className='flex-row'>
@@ -82,9 +83,9 @@ const CommentsModal = ({ selectedPost, onClose}: CommentsModalProps) => {
                                 ) : (
                                     <View className='items-center'>
                                         <TouchableOpacity onPress={() => likeComment(comment._id)} disabled={isLikingComment}>
-                                            <Feather name='heart' size={16} color={"#657786"} />
+                                            <Feather name='heart' size={16} color={`${hasLiked ? "#FF373C" : "#657786"}`} />
                                         </TouchableOpacity>
-                                        <Text className='text-gray-500 text-xs mt-1 text-center'>{comment.likes.length}</Text>
+                                        <Text className={`${hasLiked ? "text-red-500": "text-gray-500"} text-xs mt-1 text-center`}>{comment.likes.length}</Text>
                                     </View>
                                 )}
                             </View>

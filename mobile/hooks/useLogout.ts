@@ -10,8 +10,8 @@ export const useLogout = () => {
       { text: 'Logout', style: 'destructive', onPress: async () => {
         try {
           await signOut()
-        } catch (error) {
-          Alert.alert('Error', 'Failed to logout. Please try again.')
+        } catch (error: any) {
+          Alert.alert('Error', error.message || 'Failed to logout. Please try again.')
         }
       }}
     ])
