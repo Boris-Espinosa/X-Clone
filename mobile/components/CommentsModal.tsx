@@ -13,14 +13,16 @@ interface CommentsModalProps {
 
 const CommentsModal = ({ selectedPost, onClose}: CommentsModalProps) => {
 
-    const { commentText, setCommentText, createComment, isCreatingComment } = useComments();
+    const { commentText, setCommentText, createComment, isCreatingComment, deleteComment, isDeletingComment } = useComments();
+
     const { currentUser } = useCurrentUser();
 
     const handleClose = () => {
         onClose()
         setCommentText("")
     }
-
+    
+    
   return (
     <Modal visible={!!selectedPost} animationType="slide" presentationStyle="pageSheet" onRequestClose={handleClose}>
       <View className='flex-row justify-between items-center px-4 py-3 border-b border-b-gray-100 bg-white'>
@@ -60,7 +62,10 @@ const CommentsModal = ({ selectedPost, onClose}: CommentsModalProps) => {
 
             </View>
 
-            {selectedPost.comments && selectedPost.comments.length > 0 ? selectedPost.comments.map((comment) => (
+            {selectedPost.comments && selectedPost.comments.length > 0 ? selectedPost.comments.map((comment, counter = 0) => {
+                    const isOwnComment = selectedPost.comments[counter].user._id === currentUser._id
+                    counter++
+                return (
                 <View key={comment._id} className='p-4 border-b border-b-gray-50 bg-white'>
                     <View className='flex-row'>
                         <Image
@@ -68,15 +73,27 @@ const CommentsModal = ({ selectedPost, onClose}: CommentsModalProps) => {
                             source={{ uri: comment.user?.profilePicture || ""}}
                             />
                         <View className='flex-1'>
-                            <View className='flex-row items-center mb-1'>
+                            <View className='flex-row items-center mb-1 justify-between'>
                                 <Text className='font-bold text-gray-900'>{comment.user.firstName.split(" ", 1)} {comment.user.lastName?.split(" ", 1)}</Text>
-                                <Text className='text-gray-500 ml-1'>@{comment.user.username}</Text>
+                                { isOwnComment ? (
+                                    <TouchableOpacity onPress={() => deleteComment(comment._id)} disabled={isDeletingComment}>
+                                        <Feather name='trash' size={16} color={"#FF373C"}/>
+                                    </TouchableOpacity>
+                                ) : (
+                                    <View className='items-center'>
+                                        <TouchableOpacity>
+                                            <Feather name='heart' size={16} color={"#657786"} />
+                                        </TouchableOpacity>
+                                        <Text className='text-gray-500 text-xs mt-1 text-center'>{comment.likes.length}</Text>
+                                    </View>
+                                )}
                             </View>
                             <Text className='text-gray-900 text-base leading-5'>{comment.content}</Text>
                         </View>
                     </View>
+                        
                 </View>
-                )
+                )}
             ) : (
                 <View className='p-4'>
                     <Text className='text-center text-gray-500'>No comments yet. Be the first to comment!</Text>

@@ -55,7 +55,6 @@ const PostCard = ({ currentUser, onDelete, onLike, onComment, isLiked, post }:Po
                         <Text className='font-bold text-gray-900'>{ name }</Text>
                         <Text className='text-gray-500 ml-1'> •  {FormatDate(post.createdAt)}</Text>
                     </View>
-                    
                     { isOwnPost ? (
                             <Menu>
                                 <MenuTrigger
@@ -91,18 +90,18 @@ const PostCard = ({ currentUser, onDelete, onLike, onComment, isLiked, post }:Po
                     : isFollowingAuthor ? (
                         <Menu>
                             <MenuTrigger
-                                    customStyles={{
-                                        triggerWrapper: {
-                                            padding: 8,
-                                        },
-                                        triggerTouchable: {
-                                            underlayColor: '#f0f0f0',
-                                            activeOpacity: 0.7,
-                                        }
-                                    }}
-                                >
-                                    <Feather name="more-horizontal" size={18} color="#657786" />
-                                </MenuTrigger>
+                                customStyles={{
+                                    triggerWrapper: {
+                                        padding: 8,
+                                    },
+                                    triggerTouchable: {
+                                        underlayColor: '#f0f0f0',
+                                        activeOpacity: 0.7,
+                                    }
+                                }}
+                            >
+                                <Feather name="more-horizontal" size={18} color="#657786" />
+                            </MenuTrigger>
                             <MenuOptions>
                                 <MenuOption
                                 onSelect={handleFollowToggle}
@@ -113,7 +112,7 @@ const PostCard = ({ currentUser, onDelete, onLike, onComment, isLiked, post }:Po
                                         <Text className='ml-3 text-red-500 font-medium'>Unfollow</Text>
                                     </View>
                                 </MenuOption>
-                                </MenuOptions>
+                            </MenuOptions>
                         </Menu>
                     ) : (
                         <>

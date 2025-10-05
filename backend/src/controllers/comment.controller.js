@@ -75,3 +75,27 @@ export const deleteComment = AsyncHandler(async (req, res) => {
 
     res.status(200).json({ message: "Comment deleted successfully" })
 })
+
+export const likeComment = AsyncHandler(async (req, res) => {
+    const { commentId } = req.params
+    const { clerkId } = getAuth(req)
+
+    const user = await User.findOne({ clerkId: clerkId })
+    const comment = await Comment.findById(commentId)
+
+    if(!user || !comment) return res.status(404).json({error: "User or comment not found"})
+
+    const hasLiked = comment.likes.includes(user.__id)
+    
+    if (hasLiked) {
+        await Comment.findByIdAndUpdate(commentId, {
+            $pull: {likes: user._id}
+        })
+    } else {
+        await Comment.findByIdAndUpdate(commentId, {
+            $push: {likes: user._id}
+        })
+    }
+
+    res.status(200).json({ message: hasLiked ? 'Comment unliked' : 'Comment liked' })
+})
