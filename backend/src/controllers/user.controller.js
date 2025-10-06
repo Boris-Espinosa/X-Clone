@@ -65,10 +65,24 @@ export const updateProfilePicture = asyncHandler(async (req, res) => {
 export const getUserById = asyncHandler(async (req, res) => {
     const { userId } = req.params
     if (!userId) return res.status(400).json({error: "You have to send a user Id"})
-    const user = await User.findById({userId})
-    if (!user) return res.status(404).json({error: "User not found"})
-    res.status(200).json({user: user, message: "User found"})
+    const user = await User.findById(userId)
+    .populate({
+            path: 'followers',
+            select: 'clerkId username firstName lastName profilePicture'
+        })
+        .populate({
+            path: 'following',
+            select: 'clerkId username firstName lastName profilePicture'
+        });
+    
+    if (!user) {
+        return res.status(404).json({ error: "User not found" })
+    }
 
+    res.status(200).json({
+        user: user,
+        message: "User found"
+    })
 })
 
 export const updateProfileBanner = asyncHandler(async (req, res) => {
