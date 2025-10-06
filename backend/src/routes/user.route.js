@@ -1,5 +1,5 @@
 import express from 'express'
-import { followUser, getCurrentUser, getUserById, getUserProfile, syncUser, updateProfile, updateProfileBanner, updateProfilePicture } from '../controllers/user.controller.js'
+import { followUser, getCurrentUser,  getUserProfile, syncUser, updateProfile, updateProfileBanner, updateProfilePicture } from '../controllers/user.controller.js'
 import { protectRoute } from '../middleware/auth.middleware.js'
 import upload from '../middleware/upload.middleware.js'
 

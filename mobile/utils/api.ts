@@ -45,7 +45,6 @@ export const userApi = {
     headers: { 'Content-Type': 'multipart/form-data' }
   }),
   followUser: (api: AxiosInstance, targetUserId: string) => api.post(`/users/follow/${targetUserId}`),
-  getUserById: (api: AxiosInstance, userId: string) => api.get(`/users/profile/id/${userId}`)
 };
 
 export const postApi = {
