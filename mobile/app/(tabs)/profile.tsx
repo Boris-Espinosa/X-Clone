@@ -16,6 +16,7 @@ import {
   renderers,
 } from 'react-native-popup-menu';
 import { useState } from 'react';
+import FollowersModal from '@/components/FollowersModal';
 
 //TODO: add expand image when clicking
 //TODO: add go to profile when clicking users on home screen
@@ -23,6 +24,8 @@ import { useState } from 'react';
 
 const ProfileScreen = () => {
   const { currentUser, isLoading } = useCurrentUser()
+  const [isFollowersVisible, setIsFollowersVisible] = useState(false)
+  const [isFollowingVisible, setIsFollowingVisible] = useState(false)
   const insets = useSafeAreaInsets()
   const fullName = currentUser
     ? `${currentUser.firstName || ''} ${currentUser.lastName || ''}`.trim() || "User"
@@ -33,6 +36,9 @@ const ProfileScreen = () => {
     isLoading: isRefetching
   } = usePosts(currentUser?.username)
   const {
+    isFollowingModalVisible,
+    openfollowersModal,
+    closeFollowersModal,
     changeBannerFromGallery,
     changeBannerFromCamera,
     changeProfileFromGallery,
@@ -187,12 +193,18 @@ const ProfileScreen = () => {
 
             <View>
               <View className='flex-row mt-3'>
-                <TouchableOpacity className='mr-4'>
+                <TouchableOpacity className='mr-4' onPress={() => {
+                  setIsFollowingVisible(true)
+                  openfollowersModal()
+                }}>
                   <Text className='text-gray-900 font-bold mr-1'>{currentUser.following.length}
                     <Text className='font-normal text-gray-500'> Following</Text>
                   </Text>
                 </TouchableOpacity>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => {
+                  setIsFollowersVisible(true)
+                  openfollowersModal()
+                }}>
                   <Text className='text-gray-900 font-bold mr-4'>{currentUser.followers.length}
                     <Text className='font-normal text-gray-500'> Followers</Text>
                   </Text>
@@ -211,6 +223,17 @@ const ProfileScreen = () => {
         updateFormField={updateFormField}
         saveProfile={saveProfile}
         isUpdating={isUpdating}
+      />
+
+      <FollowersModal
+        isVisible={isFollowingModalVisible}
+        isFollowingVisible={isFollowingVisible}
+        isFollowersVisible={isFollowersVisible}
+        onClose={() => {
+          closeFollowersModal()
+          setIsFollowersVisible(false)
+          setIsFollowingVisible(false)
+        }}
       />
     </SafeAreaView>
   )

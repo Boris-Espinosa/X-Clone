@@ -44,7 +44,8 @@ export const userApi = {
   updateProfilePicture: (api: AxiosInstance, data: any) => api.put("/users/profile/picture", data, {
     headers: { 'Content-Type': 'multipart/form-data' }
   }),
-  followUser: (api: AxiosInstance, targetUserId: string) => api.post(`/users/follow/${targetUserId}`)
+  followUser: (api: AxiosInstance, targetUserId: string) => api.post(`/users/follow/${targetUserId}`),
+  getUserById: (api: AxiosInstance, userId: string) => api.get(`/users/profile/id/${userId}`)
 };
 
 export const postApi = {

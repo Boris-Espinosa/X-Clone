@@ -14,6 +14,7 @@ export const useProfile = () => {
     const queryClient = useQueryClient()
     const { currentUser } = useCurrentUser()
     const [isEditModalVisible, setIsEditModalVisible] = useState(false)
+    const [isFollowingModalVisible, setIsFollowingModalVisible] = useState(false)
     const [formData, setFormData] = useState({
         firstName: "",
         lastName: "",
@@ -137,6 +138,20 @@ export const useProfile = () => {
         setIsEditModalVisible(true)
     }
 
+    const openfollowersModal = () => {
+        if(currentUser) {
+            console.log("trying open modal")
+            setIsFollowingModalVisible(true)
+        }
+    }
+
+    const getFollowersMutation = useMutation({
+        mutationFn: (userId: string) => userApi.getUserById(api, userId),
+        onSuccess: async() => {
+            queryClient.invalidateQueries({queryKey: ["currentUser"], refetchType: "active"})
+        }
+    })
+
     const updateFormField = (field: string, value: string) => {
         
         setFormData((prev) => ({ ...prev, [field]: value.trimStart() }))
@@ -180,6 +195,10 @@ export const useProfile = () => {
     }
 
     return {
+        getFollowers: (userId: string) => getFollowersMutation.mutate(userId),
+        openfollowersModal,
+        closeFollowersModal: () => setIsFollowingModalVisible(false),
+        isFollowingModalVisible,
         isEditModalVisible,
         openEditModal,
         closeEditModal: () => setIsEditModalVisible(false),
