@@ -73,7 +73,7 @@ export const getUserById = asyncHandler(async (req, res) => {
         .populate({
             path: 'following',
             select: 'clerkId username firstName lastName profilePicture'
-        });
+        })
     
     if (!user) {
         return res.status(404).json({ error: "User not found" })
