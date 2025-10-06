@@ -5,8 +5,8 @@ export interface User {
   firstName: string;
   lastName?: string;
   profilePicture?: string;
-  followers: string[];
-  following?: string[];
+  followers: User[] | string[];
+  following?: User[] | string[];
 }
 
 export interface Comment {

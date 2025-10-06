@@ -138,19 +138,11 @@ export const useProfile = () => {
         setIsEditModalVisible(true)
     }
 
-    const openfollowersModal = () => {
+    const openFollowersModal = () => {
         if(currentUser) {
-            console.log("trying open modal")
             setIsFollowingModalVisible(true)
         }
     }
-
-    const getFollowersMutation = useMutation({
-        mutationFn: (userId: string) => userApi.getUserById(api, userId),
-        onSuccess: async() => {
-            queryClient.invalidateQueries({queryKey: ["currentUser"], refetchType: "active"})
-        }
-    })
 
     const updateFormField = (field: string, value: string) => {
         
@@ -195,8 +187,7 @@ export const useProfile = () => {
     }
 
     return {
-        getFollowers: (userId: string) => getFollowersMutation.mutate(userId),
-        openfollowersModal,
+        openFollowersModal,
         closeFollowersModal: () => setIsFollowingModalVisible(false),
         isFollowingModalVisible,
         isEditModalVisible,
@@ -206,7 +197,7 @@ export const useProfile = () => {
         saveProfile,
         updateFormField,
         isUpdating: updateProfileMutation.isPending,
-        refetch: () => queryClient.invalidateQueries({ queryKey: ['authUser'] }),
+        refetch: () => queryClient.invalidateQueries({ queryKey: ['currentUser'] }),
         changeBannerFromGallery: () => handleChangeImage(false, false),
         changeBannerFromCamera: () => handleChangeImage(true, false),
         changeProfileFromGallery: () => handleChangeImage(false, true),

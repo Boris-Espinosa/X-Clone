@@ -37,7 +37,7 @@ const ProfileScreen = () => {
   } = usePosts(currentUser?.username)
   const {
     isFollowingModalVisible,
-    openfollowersModal,
+    openFollowersModal,
     closeFollowersModal,
     changeBannerFromGallery,
     changeBannerFromCamera,
@@ -104,7 +104,7 @@ const ProfileScreen = () => {
               />
             </TouchableOpacity>
 
-            <Menu onBackdropPress={() => setMenuLayer("main")} renderer={renderers.ContextMenu} style={{ position: 'absolute', left: 78, top: 2, zIndex: 10}}>
+            <Menu onBackdropPress={() => setMenuLayer("main")} renderer={renderers.ContextMenu} style={{ position: 'absolute', left: 80, top: 0, zIndex: 10}}>
             <MenuTrigger
               customStyles={{
                 triggerWrapper: {
@@ -125,10 +125,10 @@ const ProfileScreen = () => {
             >
               <Feather name="edit-2" size={20} color="#1DA1F2" />
             </MenuTrigger>
-            <MenuOptions customStyles={{optionsContainer: { marginLeft: -5, borderRadius: 10, padding: 10, marginRight: 170}, optionTouchable: { underlayColor: '#F3F4F6', activeOpacity: 0.6, style: { borderRadius: 10 }}}}>
+            <MenuOptions customStyles={{optionsContainer: { marginLeft: -5, borderRadius: 10, padding: 10, marginRight: 170}}}>
               {menuLayer === "main" && (
               <>
-                <MenuOption onSelect={() => {setMenuLayer("banner"); return false}} style={{flexDirection: 'row', alignItems: 'center', marginBottom: 10}}>
+                <MenuOption onSelect={() => {setMenuLayer("banner"); return false}} style={{flexDirection: 'row', alignItems: 'center'}}>
                   <Feather name="image" size={20} color="#1DA1F2" />
                   <Text className='text-gray-900 text-sm font-semibold'>  Change Banner Picture</Text>
                 </MenuOption>
@@ -140,20 +140,20 @@ const ProfileScreen = () => {
               )}
               {menuLayer === "banner" && (
                 <>
-                  <MenuOption onSelect={() => {changeBannerFromCamera(); setMenuLayer("main")}} style={{flexDirection: 'row', alignItems: 'center', marginBottom: 10}}>
-                    <Feather name="camera" size={20} color="#1DA1F2" />
-                    <Text className='text-gray-900 text-sm font-semibold'>  Camera</Text>
-                  </MenuOption>
-                  <MenuOption onSelect={() => {changeBannerFromGallery(); setMenuLayer("main")}} style={{flexDirection: 'row', alignItems: 'center'}}>
-                    <Feather name="image" size={20} color="#1DA1F2" />
-                    <Text className='text-gray-900 text-sm font-semibold'>  Gallery</Text>
-                  </MenuOption>
+                <MenuOption onSelect={() => {changeBannerFromCamera(); setMenuLayer("main")}} style={{flexDirection: 'row', alignItems: 'center'}}>
+                  <Feather name="camera" size={20} color="#1DA1F2" />
+                  <Text className='text-gray-900 text-sm font-semibold'>  Camera</Text>
+                </MenuOption>
+                <MenuOption onSelect={() => {changeBannerFromGallery(); setMenuLayer("main")}} style={{flexDirection: 'row', alignItems: 'center'}}>
+                  <Feather name="image" size={20} color="#1DA1F2" />
+                  <Text className='text-gray-900 text-sm font-semibold'>  Gallery</Text>
+                </MenuOption>
                 </>
               )}
                 
               {menuLayer === "profile" && (
                 <>
-                  <MenuOption onSelect={() => {changeProfileFromCamera(); setMenuLayer("main")}} style={{flexDirection: 'row', alignItems: 'center', marginBottom: 10}}>
+                  <MenuOption onSelect={() => {changeProfileFromCamera(); setMenuLayer("main")}} style={{flexDirection: 'row', alignItems: 'center'}}>
                     <Feather name="camera" size={20} color="#1DA1F2" />
                     <Text className='text-gray-900 text-sm font-semibold'>  Camera</Text>
                   </MenuOption>
@@ -166,9 +166,9 @@ const ProfileScreen = () => {
             </MenuOptions>
             </Menu>
 
-            <TouchableOpacity onPress={openEditModal} className=' -top-4 px-6 py-2 border border-gray-300 rounded-full active:bg-gray-100'>
+            <TouchableOpacity onPress={openEditModal} className=' top-0 px-6 py-2 border border-gray-300 rounded-full active:bg-gray-100'>
               <Text className='text-gray-900 font-semibold'>Edit Profile</Text>
-            </TouchableOpacity>
+          -  </TouchableOpacity>
           </View>
 
           <View className='mt-4'>
@@ -195,18 +195,18 @@ const ProfileScreen = () => {
               <View className='flex-row mt-3'>
                 <TouchableOpacity className='mr-4' onPress={() => {
                   setIsFollowingVisible(true)
-                  openfollowersModal()
+                  openFollowersModal()
                 }}>
                   <Text className='text-gray-900 font-bold mr-1'>{currentUser.following.length}
-                    <Text className='font-normal text-gray-500'> Following</Text>
+                    <Text className='font-normal text-gray-500'>Following</Text>
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => {
                   setIsFollowersVisible(true)
-                  openfollowersModal()
+                  openFollowersModal()
                 }}>
                   <Text className='text-gray-900 font-bold mr-4'>{currentUser.followers.length}
-                    <Text className='font-normal text-gray-500'> Followers</Text>
+                    <Text className='font-normal text-gray-500'>Followers</Text>
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -227,13 +227,9 @@ const ProfileScreen = () => {
 
       <FollowersModal
         isVisible={isFollowingModalVisible}
-        isFollowingVisible={isFollowingVisible}
+        onClose={closeFollowersModal}
         isFollowersVisible={isFollowersVisible}
-        onClose={() => {
-          closeFollowersModal()
-          setIsFollowersVisible(false)
-          setIsFollowingVisible(false)
-        }}
+        isFollowingVisible={isFollowingVisible}
       />
     </SafeAreaView>
   )

@@ -7,7 +7,6 @@ const router = express.Router()
 
 router.get("/profile/:username", getUserProfile)
 
-router.get("/profile/id/:userId", getUserById)
 router.post("/sync", protectRoute, syncUser)
 router.get("/me", protectRoute, getCurrentUser)
 router.put("/profile", protectRoute, updateProfile)
