@@ -198,7 +198,7 @@ const ProfileScreen = () => {
                   openFollowersModal()
                 }}>
                   <Text className='text-gray-900 font-bold mr-1'>{currentUser.following.length}
-                    <Text className='font-normal text-gray-500'>Following</Text>
+                    <Text className='font-normal text-gray-500'>  Following</Text>
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => {
@@ -206,7 +206,7 @@ const ProfileScreen = () => {
                   openFollowersModal()
                 }}>
                   <Text className='text-gray-900 font-bold mr-4'>{currentUser.followers.length}
-                    <Text className='font-normal text-gray-500'>Followers</Text>
+                    <Text className='font-normal text-gray-500'>  Followers</Text>
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -227,7 +227,11 @@ const ProfileScreen = () => {
 
       <FollowersModal
         isVisible={isFollowingModalVisible}
-        onClose={closeFollowersModal}
+        onClose={() => {
+          closeFollowersModal()
+          setIsFollowersVisible(false)
+          setIsFollowingVisible(false)
+        }}
         isFollowersVisible={isFollowersVisible}
         isFollowingVisible={isFollowingVisible}
       />

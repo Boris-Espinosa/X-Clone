@@ -3,6 +3,7 @@ import useCreatePost from '../hooks/useCreatePost'
 import { useUser } from '@clerk/clerk-expo'
 import {  } from 'expo-image'
 import { Feather } from '@expo/vector-icons';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 
 const PostComposer = () => {
 
@@ -17,11 +18,11 @@ const PostComposer = () => {
         createPost,
     } = useCreatePost()
 
-    const { user } = useUser()
+    const { currentUser } = useCurrentUser()
   return (
     <View className='p-4 border-b border-gray-100 bg-white'>
         <View className='flex-row'>
-            <Image source={{ uri: user?.imageUrl }} className='w-12 h-12 rounded-full mr-3' />
+            <Image source={{ uri: currentUser.profilePicture }} className='w-12 h-12 rounded-full mr-3' />
             <View className='flex-1'>
                 <TextInput
                     className='text-gray-900 text-lg'
