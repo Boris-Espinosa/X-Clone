@@ -17,6 +17,7 @@ import {
 } from 'react-native-popup-menu';
 import { useState } from 'react';
 import FollowersModal from '@/components/FollowersModal';
+import ZoomPictureModal from '@/components/ZoomPictureModal';
 
 //TODO: add expand image when clicking
 //TODO: add go to profile when clicking users on home screen
@@ -53,6 +54,14 @@ const ProfileScreen = () => {
     refetch: refetchProfile,
   } = useProfile();
 
+  const [selectedImage, setSelectedImage] = useState("")
+  const [isZoomModalVisible, setIsZoomModalVisible] = useState(false)
+  
+  const handleZoomImage = (image: string) => {
+    setSelectedImage(image)
+    setIsZoomModalVisible(true)
+  }
+
   const [menuLayer, setMenuLayer] = useState<"main" | "banner" | "profile" | null>("main");
 
   if(isLoading) {
@@ -88,7 +97,7 @@ const ProfileScreen = () => {
           colors={["#1DA1F2"]}
         />}
       >
-      <TouchableOpacity>
+      <TouchableOpacity onPress={() => handleZoomImage(currentUser.bannerImage)} activeOpacity={0.9}>
         <Image
           className='w-full h-48 bg-gray-200'
           source={{ uri: currentUser?.bannerImage || "https://images.unsplash.com/photo-1503264116251-35a269479413?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" }}
@@ -97,7 +106,7 @@ const ProfileScreen = () => {
       </TouchableOpacity>
         <View className='px-4 pb-4 border-b border-gray-100'>
           <View className='flex-row justify-between items-end -mt-16 -mb-4'>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => handleZoomImage(currentUser.profilePicture)} activeOpacity={0.9}>
               <Image
                 className='size-32 rounded-full border-4 border-white bg-gray-200'
                 source={{ uri: currentUser?.profilePicture || "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" }}
@@ -234,6 +243,12 @@ const ProfileScreen = () => {
         }}
         isFollowersVisible={isFollowersVisible}
         isFollowingVisible={isFollowingVisible}
+      />
+      
+      <ZoomPictureModal
+        isVisible={isZoomModalVisible}
+        selectedPicture={selectedImage}
+        onClose={() => setIsZoomModalVisible(false)}
       />
     </SafeAreaView>
   )

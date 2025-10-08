@@ -2,8 +2,10 @@ import { useFollow } from '@/hooks/useFollow';
 import { Post, User } from '@/types'
 import { FormatDate, formatNumber } from '@/utils/formatters';
 import { Feather } from '@expo/vector-icons';
-import { View, Text, Alert, Image, TouchableOpacity } from 'react-native';
+import { useState } from 'react';
+import { View, Text, Alert, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Menu, MenuTrigger, MenuOptions, MenuOption } from 'react-native-popup-menu';
+import ZoomPictureModal from './ZoomPictureModal';
 
 interface PostCardProps {
     post: Post;
@@ -41,6 +43,21 @@ const PostCard = ({ currentUser, onDelete, onLike, onComment, isLiked, post }:Po
     const handleFollowToggle = () => {
         followUser(post.user.clerkId)
     }
+
+    const [selectedImage, setSelectedImage] = useState("")
+      const [isZoomModalVisible, setIsZoomModalVisible] = useState(false)
+      
+      const handleZoomImage = (image: string) => {
+        setSelectedImage(image)
+        setIsZoomModalVisible(true)
+      }
+
+    if (isLoading) return (
+        <View className='items-center justify-center'>
+            <ActivityIndicator size={"small"} />
+        </View>
+    )
+
   return (
     <View className='bg-white border-gray-200 border-b border-b-gray-100'>
         <View className='p-4 flex-row'>
@@ -131,11 +148,18 @@ const PostCard = ({ currentUser, onDelete, onLike, onComment, isLiked, post }:Po
                     <Text className='text-gray-900 text-base leading-5 mb-3'>{post.content}</Text>
                 )}
                 {post.image && (
-                    <Image
-                        source={{ uri: post.image }}
-                        className='w-full h-48 rounded-lg mb-3'
-                        resizeMode='cover'
-                    />
+                    <TouchableOpacity onPress={() => {
+                        if(typeof post.image != "undefined")
+                        handleZoomImage(post.image)
+                        }}
+                        activeOpacity={0.9}
+                    >
+                        <Image
+                            source={{ uri: post.image }}
+                            className='w-full h-48 rounded-lg mb-3'
+                            resizeMode='cover'
+                        />
+                    </TouchableOpacity>
                 )}
 
                 <View className='flex-row justify-between items-center'>
@@ -147,7 +171,7 @@ const PostCard = ({ currentUser, onDelete, onLike, onComment, isLiked, post }:Po
                         <Feather name={isLiked ? "heart" : "heart"} size={18} color={isLiked ? "#E0245E" : "#657786"} />
                         <Text className={`ml-2 ${isLiked ? "text-red-500" : "text-gray-500"}`}>{post.likes.length}</Text>
                     </TouchableOpacity>
-                    
+
                     <TouchableOpacity className='flex-row items-center' onPress={() => onComment(post)}>
                         <Feather name="message-circle" size={18} color="#657786" />
                         <Text className='ml-2 text-gray-500'>{formatNumber(post.comments?.length || 0)}</Text>
@@ -161,9 +185,15 @@ const PostCard = ({ currentUser, onDelete, onLike, onComment, isLiked, post }:Po
                     <TouchableOpacity className='flex-row items-center'>
                         <Feather name="share" size={18} color="#657786" />
                     </TouchableOpacity>
+
                 </View>
             </View>
         </View>
+        <ZoomPictureModal
+            isVisible={isZoomModalVisible}
+            selectedPicture={selectedImage}
+            onClose={() => setIsZoomModalVisible(false)}
+        />
     </View>
   )
 }

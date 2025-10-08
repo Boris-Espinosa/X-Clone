@@ -18,11 +18,19 @@ const PostComposer = () => {
         createPost,
     } = useCreatePost()
 
-    const { currentUser } = useCurrentUser()
+    const { currentUser, isLoading } = useCurrentUser()
+    const { user } = useUser()
+
+    if (isLoading) return (
+        <View className='items-center justify-center'>
+            <ActivityIndicator size={"large"} />
+        </View>
+    )
+
   return (
     <View className='p-4 border-b border-gray-100 bg-white'>
         <View className='flex-row'>
-            <Image source={{ uri: currentUser.profilePicture }} className='w-12 h-12 rounded-full mr-3' />
+            <Image source={{ uri: currentUser.profilePicture || user?.imageUrl }} className='w-12 h-12 rounded-full mr-3' />
             <View className='flex-1'>
                 <TextInput
                     className='text-gray-900 text-lg'
