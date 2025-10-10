@@ -14,9 +14,9 @@ const ZoomPictureModal = ({selectedPicture, isVisible, onClose}: ZoomPictureModa
   if (!selectedPicture) return null;
 
   return (
-      <Modal visible={isVisible} animationType="fade" transparent={true} onRequestClose={onClose}>
+      <Modal visible={isVisible} animationType="fade" transparent={true} onRequestClose={onClose} statusBarTranslucent={true}>
         <View className='flex-1 bg-black/90'>
-            <SafeAreaView edges={["top"]} className='flex-1'>
+            <SafeAreaView edges={["top", "bottom"]} className='flex-1'>
                 <View className='flex-row justify-between items-center px-4 py-3'>
                     <View className='w-12' />
                     <TouchableOpacity

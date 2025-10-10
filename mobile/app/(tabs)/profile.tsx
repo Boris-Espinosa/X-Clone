@@ -19,7 +19,6 @@ import { useState } from 'react';
 import FollowersModal from '@/components/FollowersModal';
 import ZoomPictureModal from '@/components/ZoomPictureModal';
 
-//TODO: add expand image when clicking
 //TODO: add go to profile when clicking users on home screen
 //TODO: add modal to show followers/following and filter by name
 
@@ -177,7 +176,7 @@ const ProfileScreen = () => {
 
             <TouchableOpacity onPress={openEditModal} className=' top-0 px-6 py-2 border border-gray-300 rounded-full active:bg-gray-100'>
               <Text className='text-gray-900 font-semibold'>Edit Profile</Text>
-          -  </TouchableOpacity>
+            </TouchableOpacity>
           </View>
 
           <View className='mt-4'>

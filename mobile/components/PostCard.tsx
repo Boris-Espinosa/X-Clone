@@ -61,10 +61,16 @@ const PostCard = ({ currentUser, onDelete, onLike, onComment, isLiked, post }:Po
   return (
     <View className='bg-white border-gray-200 border-b border-b-gray-100'>
         <View className='p-4 flex-row'>
-            <Image
-                source={{ uri: post.user.profilePicture }}
-                className='w-12 h-12 rounded-full mr-3'
-            />
+            <TouchableOpacity
+                onLongPress={() => {
+                    if (typeof post.user.profilePicture != "undefined")
+                    handleZoomImage(post.user.profilePicture)
+            }}>
+                <Image
+                    source={{ uri: post.user.profilePicture }}
+                    className='w-12 h-12 rounded-full mr-3'
+                />
+            </TouchableOpacity>
 
             <View className='flex-1'>
                 <View className='flex-row justify-between items-cente mb-1'>
