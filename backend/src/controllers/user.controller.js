@@ -7,6 +7,14 @@ import cloudinary from '../config/cloudinary.js'
 export const getUserProfile = asyncHandler(async (req, res) => {
     const { username } = req.params
     const user = await User.findOne({ username })
+        .populate({
+            path: 'followers',
+            select: 'clerkId username firstName lastName profilePicture'
+        })
+        .populate({
+            path: 'following',
+            select: 'clerkId username firstName lastName profilePicture'
+        })
     if (!user) return res.status(404).json({ error: 'User not found' })
 
     res.status(200).json({ user })

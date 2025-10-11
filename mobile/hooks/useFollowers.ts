@@ -1,11 +1,11 @@
 import { useCurrentUser } from './useCurrentUser';
 import { User } from '@/types';
 
-export const useFollowers = () => {
-  const { currentUser, isLoading, error } = useCurrentUser();
+export const useFollowers = (targetUser: User) => {
 
-  const followers = (currentUser?.followers || []) as User[];
-  const following = (currentUser?.following || []) as User[];
+
+  const followers = (targetUser?.followers || []) as User[];
+  const following = (targetUser?.following || []) as User[];
 
   const isPopulated = followers.length > 0 && typeof followers[0] === 'object';
 
@@ -13,12 +13,10 @@ export const useFollowers = () => {
   const followingCount = Array.isArray(following) ? following.length : 0;
 
   return {
-    followers,        
-    following,        
+    followers,
+    following,
     followersCount,
     followingCount,
-    isPopulated,      
-    isLoading,
-    error,
+    isPopulated,
   };
 };

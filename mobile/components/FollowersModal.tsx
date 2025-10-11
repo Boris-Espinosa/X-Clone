@@ -9,16 +9,19 @@ import { useState } from "react";
 import { Alert, Image, Modal, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 interface followersModalProps {
+    targetUser: User;
     isVisible: boolean;
     isFollowersVisible: boolean;
     isFollowingVisible: boolean;
     onClose: () => void;
 }
 
-const FollowersModal = ({ isVisible, isFollowersVisible, isFollowingVisible, onClose }: followersModalProps) =>{
+const FollowersModal = ({targetUser, isVisible, isFollowersVisible, isFollowingVisible, onClose }: followersModalProps) =>{
     const { currentUser } = useCurrentUser()
     const { followUser, isLoading: isFollowing } = useFollow()
-    const { following, followers, followersCount, followingCount} = useFollowers()
+    const { following, followers, followersCount, followingCount} = useFollowers(targetUser)
+    
+    const myFollowing = (currentUser?.following || []) as User[]
     const [query, setQuery] = useState("")
 
     const handleUnfollowUser = (follow: User) => {
@@ -58,7 +61,7 @@ const FollowersModal = ({ isVisible, isFollowersVisible, isFollowingVisible, onC
                                         <Text className="text-gray-500"> @{follower.username}</Text>
                                     </Text>
                                 </View>
-                                {!following.some(f => f._id === follower._id) && follower._id !== currentUser._id && (
+                                {!myFollowing.some(f => f._id === follower._id) && follower._id !== currentUser?._id && (
                                     <TouchableOpacity className="mr-3" onPress={() => followUser(follower.clerkId)}>
                                         <Feather name="user-plus" size={18} color="#1DA1F2"/>
                                     </TouchableOpacity>

@@ -1,11 +1,12 @@
 import { useFollow } from '@/hooks/useFollow';
-import { Post, User } from '@/types'
+import { Post, User } from '@/types';
 import { FormatDate, formatNumber } from '@/utils/formatters';
 import { Feather } from '@expo/vector-icons';
 import { useState } from 'react';
 import { View, Text, Alert, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Menu, MenuTrigger, MenuOptions, MenuOption } from 'react-native-popup-menu';
 import ZoomPictureModal from './ZoomPictureModal';
+import { router } from 'expo-router';
 
 interface PostCardProps {
     post: Post;
@@ -63,9 +64,17 @@ const PostCard = ({ currentUser, onDelete, onLike, onComment, isLiked, post }:Po
         <View className='p-4 flex-row'>
             <TouchableOpacity
                 onLongPress={() => {
-                    if (typeof post.user.profilePicture != "undefined")
-                    handleZoomImage(post.user.profilePicture)
-            }}>
+                    if (post.user.profilePicture) {
+                        handleZoomImage(post.user.profilePicture)
+                    }
+                }}
+                onPress={() => {
+                    router.push({
+                        pathname: "/(tabs)/profile",
+                        params: { username: post.user.username }
+                    });
+                }}
+            >
                 <Image
                     source={{ uri: post.user.profilePicture }}
                     className='w-12 h-12 rounded-full mr-3'

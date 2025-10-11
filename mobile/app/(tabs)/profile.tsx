@@ -18,23 +18,31 @@ import {
 import { useState } from 'react';
 import FollowersModal from '@/components/FollowersModal';
 import ZoomPictureModal from '@/components/ZoomPictureModal';
+import useUserProfile from '@/hooks/useUserProfile';
+import { useLocalSearchParams } from 'expo-router';
 
 //TODO: add go to profile when clicking users on home screen
 //TODO: add modal to show followers/following and filter by name
 
 const ProfileScreen = () => {
-  const { currentUser, isLoading } = useCurrentUser()
+  const params = useLocalSearchParams<{ username?: string}>()
+  const { currentUser, isLoading: isLoadingCurrentUser } = useCurrentUser()
   const [isFollowersVisible, setIsFollowersVisible] = useState(false)
   const [isFollowingVisible, setIsFollowingVisible] = useState(false)
   const insets = useSafeAreaInsets()
-  const fullName = currentUser
-    ? `${currentUser.firstName || ''} ${currentUser.lastName || ''}`.trim() || "User"
+  
+  const { target, isLoading: isLoadingTargetUser } = useUserProfile(params.username)
+  
+  const displayUser = params.username ? target : currentUser
+  const isOwnProfile = !params.username || currentUser?.username === params.username
+  const fullName = displayUser
+    ? `${displayUser.firstName || ''} ${displayUser.lastName || ''}`.trim() || "User"
     : "User"
   const {
     posts: userPosts,
     refetch: refetchPosts,
     isLoading: isRefetching
-  } = usePosts(currentUser?.username)
+  } = usePosts(displayUser?.username)
   const {
     isFollowingModalVisible,
     openFollowersModal,
@@ -63,12 +71,23 @@ const ProfileScreen = () => {
 
   const [menuLayer, setMenuLayer] = useState<"main" | "banner" | "profile" | null>("main");
 
+  const isLoading = isLoadingCurrentUser || (params.username && isLoadingTargetUser);
+
   if(isLoading) {
     return (
       <View className='flex-1 justify-center items-center '>
         <ActivityIndicator size="large" color="#1DA1F2"/>
       </View>
     )
+  }
+
+  if (!displayUser) {
+    return (
+      <SafeAreaView className='flex-1 bg-white items-center justify-center'>
+        <Feather name="alert-circle" size={48} color="#9CA3AF" />
+        <Text className='text-gray-500 mt-4'>User not found</Text>
+      </SafeAreaView>
+    );
   }
 
   return (
@@ -96,87 +115,91 @@ const ProfileScreen = () => {
           colors={["#1DA1F2"]}
         />}
       >
-      <TouchableOpacity onPress={() => handleZoomImage(currentUser.bannerImage)} activeOpacity={0.9}>
+      <TouchableOpacity onPress={() => handleZoomImage(displayUser.bannerImage || "")} activeOpacity={0.9}>
         <Image
           className='w-full h-48 bg-gray-200'
-          source={{ uri: currentUser?.bannerImage || "https://images.unsplash.com/photo-1503264116251-35a269479413?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" }}
+          source={{ uri: displayUser?.bannerImage || "https://images.unsplash.com/photo-1503264116251-35a269479413?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" }}
           resizeMode='cover'
         />
       </TouchableOpacity>
         <View className='px-4 pb-4 border-b border-gray-100'>
           <View className='flex-row justify-between items-end -mt-16 -mb-4'>
-            <TouchableOpacity onPress={() => handleZoomImage(currentUser.profilePicture)} activeOpacity={0.9}>
+            <TouchableOpacity onPress={() => handleZoomImage(displayUser.profilePicture || "")} activeOpacity={0.9}>
               <Image
                 className='size-32 rounded-full border-4 border-white bg-gray-200'
-                source={{ uri: currentUser?.profilePicture || "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" }}
+                source={{ uri: displayUser?.profilePicture || "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" }}
               />
             </TouchableOpacity>
-
+          {isOwnProfile && (
             <Menu onBackdropPress={() => setMenuLayer("main")} renderer={renderers.ContextMenu} style={{ position: 'absolute', left: 80, top: 0, zIndex: 10}}>
-            <MenuTrigger
-              customStyles={{
-                triggerWrapper: {
-                  backgroundColor: 'white',
-                  borderRadius: 9999,
-                  padding: 4,
-                  borderWidth: 1,
-                  borderColor: '#E5E7EB',
-                },
-                triggerTouchable: {
-                  underlayColor: '#F3F4F6',
-                  activeOpacity: 0.6,
-                  style: {
+              <MenuTrigger
+                customStyles={{
+                  triggerWrapper: {
+                    backgroundColor: 'white',
                     borderRadius: 9999,
+                    padding: 4,
+                    borderWidth: 1,
+                    borderColor: '#E5E7EB',
+                  },
+                  triggerTouchable: {
+                    underlayColor: '#F3F4F6',
+                    activeOpacity: 0.6,
+                    style: {
+                      borderRadius: 9999,
+                    }
                   }
-                }
-              }}
-            >
-              <Feather name="edit-2" size={20} color="#1DA1F2" />
-            </MenuTrigger>
-            <MenuOptions customStyles={{optionsContainer: { marginLeft: -5, borderRadius: 10, padding: 10, marginRight: 170}}}>
-              {menuLayer === "main" && (
-              <>
-                <MenuOption onSelect={() => {setMenuLayer("banner"); return false}} style={{flexDirection: 'row', alignItems: 'center'}}>
-                  <Feather name="image" size={20} color="#1DA1F2" />
-                  <Text className='text-gray-900 text-sm font-semibold'>  Change Banner Picture</Text>
-                </MenuOption>
-                <MenuOption onSelect={() => {setMenuLayer("profile"); return false}} style={{flexDirection: 'row', alignItems: 'center'}}>
-                  <Feather name="user" size={20} color="#1DA1F2" />
-                  <Text className='text-gray-900 text-sm font-semibold'>  Change Profile Picture</Text>
-                </MenuOption>
-              </>
-              )}
-              {menuLayer === "banner" && (
+                }}
+              >
+                <Feather name="edit-2" size={20} color="#1DA1F2" />
+              </MenuTrigger>
+              <MenuOptions customStyles={{optionsContainer: { marginLeft: -5, borderRadius: 10, padding: 10, marginRight: 170}}}>
+                {menuLayer === "main" && (
                 <>
-                <MenuOption onSelect={() => {changeBannerFromCamera(); setMenuLayer("main")}} style={{flexDirection: 'row', alignItems: 'center'}}>
-                  <Feather name="camera" size={20} color="#1DA1F2" />
-                  <Text className='text-gray-900 text-sm font-semibold'>  Camera</Text>
-                </MenuOption>
-                <MenuOption onSelect={() => {changeBannerFromGallery(); setMenuLayer("main")}} style={{flexDirection: 'row', alignItems: 'center'}}>
-                  <Feather name="image" size={20} color="#1DA1F2" />
-                  <Text className='text-gray-900 text-sm font-semibold'>  Gallery</Text>
-                </MenuOption>
+                  <MenuOption onSelect={() => {setMenuLayer("banner"); return false}} style={{flexDirection: 'row', alignItems: 'center'}}>
+                    <Feather name="image" size={20} color="#1DA1F2" />
+                    <Text className='text-gray-900 text-sm font-semibold'>  Change Banner Picture</Text>
+                  </MenuOption>
+                  <MenuOption onSelect={() => {setMenuLayer("profile"); return false}} style={{flexDirection: 'row', alignItems: 'center'}}>
+                    <Feather name="user" size={20} color="#1DA1F2" />
+                    <Text className='text-gray-900 text-sm font-semibold'>  Change Profile Picture</Text>
+                  </MenuOption>
                 </>
-              )}
-                
-              {menuLayer === "profile" && (
-                <>
-                  <MenuOption onSelect={() => {changeProfileFromCamera(); setMenuLayer("main")}} style={{flexDirection: 'row', alignItems: 'center'}}>
+                )}
+                {menuLayer === "banner" && (
+                  <>
+                  <MenuOption onSelect={() => {changeBannerFromCamera(); setMenuLayer("main")}} style={{flexDirection: 'row', alignItems: 'center'}}>
                     <Feather name="camera" size={20} color="#1DA1F2" />
                     <Text className='text-gray-900 text-sm font-semibold'>  Camera</Text>
                   </MenuOption>
-                  <MenuOption onSelect={() => {changeProfileFromGallery(); setMenuLayer("main")}} style={{flexDirection: 'row', alignItems: 'center'}}>
+                  <MenuOption onSelect={() => {changeBannerFromGallery(); setMenuLayer("main")}} style={{flexDirection: 'row', alignItems: 'center'}}>
                     <Feather name="image" size={20} color="#1DA1F2" />
                     <Text className='text-gray-900 text-sm font-semibold'>  Gallery</Text>
                   </MenuOption>
-                </>
-              )}
-            </MenuOptions>
+                  </>
+                )}
+                  
+                {menuLayer === "profile" && (
+                  <>
+                    <MenuOption onSelect={() => {changeProfileFromCamera(); setMenuLayer("main")}} style={{flexDirection: 'row', alignItems: 'center'}}>
+                      <Feather name="camera" size={20} color="#1DA1F2" />
+                      <Text className='text-gray-900 text-sm font-semibold'>  Camera</Text>
+                    </MenuOption>
+                    <MenuOption onSelect={() => {changeProfileFromGallery(); setMenuLayer("main")}} style={{flexDirection: 'row', alignItems: 'center'}}>
+                      <Feather name="image" size={20} color="#1DA1F2" />
+                      <Text className='text-gray-900 text-sm font-semibold'>  Gallery</Text>
+                    </MenuOption>
+                  </>
+                )}
+              </MenuOptions>
             </Menu>
-
-            <TouchableOpacity onPress={openEditModal} className=' top-0 px-6 py-2 border border-gray-300 rounded-full active:bg-gray-100'>
-              <Text className='text-gray-900 font-semibold'>Edit Profile</Text>
-            </TouchableOpacity>
+            )
+          }
+            
+            {isOwnProfile && (
+              <TouchableOpacity onPress={openEditModal} className=' top-0 px-6 py-2 border border-gray-300 rounded-full active:bg-gray-100'>
+                <Text className='text-gray-900 font-semibold'>Edit Profile</Text>
+              </TouchableOpacity>
+            )}
           </View>
 
           <View className='mt-4'>
@@ -184,19 +207,19 @@ const ProfileScreen = () => {
               <Text className='font-bold text-gray-900 text-xl mr-1'>{fullName}</Text>
               <Feather name="check-circle" size={16} color="#1DA1F2" />
             </View>
-            <Text className='text-gray-500 text-base mb-2'>@{currentUser?.username}</Text>
-            { currentUser?.bio && (
-              <Text className='text-gray-900 text-base mb-2'>{currentUser.bio}</Text>
+            <Text className='text-gray-500 text-base mb-2'>@{displayUser?.username}</Text>
+            { displayUser?.bio && (
+              <Text className='text-gray-900 text-base mb-2'>{displayUser.bio}</Text>
             )}
-            { currentUser?.location && (
+            { displayUser?.location && (
               <View className='flex-row items-center mb-1'>
                 <Feather name="map-pin" size={16} color="#657786" />
-                <Text className='text-gray-500 text-base ml-1'>{currentUser.location}</Text>
+                <Text className='text-gray-500 text-base ml-1'>{displayUser.location}</Text>
               </View>
             )}
             <View className='flex-row items-center'>
               <Feather name="calendar" size={16} color="#657786" />
-              <Text className='text-gray-500 text-base ml-1'>Joined {format(new Date(currentUser.createdAt), "dd MMMM yyyy")}</Text>
+              <Text className='text-gray-500 text-base ml-1'>Joined {format(new Date(displayUser.createdAt), "dd MMMM yyyy")}</Text>
             </View>
 
             <View>
@@ -205,7 +228,7 @@ const ProfileScreen = () => {
                   setIsFollowingVisible(true)
                   openFollowersModal()
                 }}>
-                  <Text className='text-gray-900 font-bold mr-1'>{currentUser.following.length}
+                  <Text className='text-gray-900 font-bold mr-1'>{displayUser.following.length}
                     <Text className='font-normal text-gray-500'>  Following</Text>
                   </Text>
                 </TouchableOpacity>
@@ -213,7 +236,7 @@ const ProfileScreen = () => {
                   setIsFollowersVisible(true)
                   openFollowersModal()
                 }}>
-                  <Text className='text-gray-900 font-bold mr-4'>{currentUser.followers.length}
+                  <Text className='text-gray-900 font-bold mr-4'>{displayUser.followers.length}
                     <Text className='font-normal text-gray-500'>  Followers</Text>
                   </Text>
                 </TouchableOpacity>
@@ -221,7 +244,7 @@ const ProfileScreen = () => {
             </View>
           </View>
         </View>
-        <PostsList username={currentUser?.username}/>
+        <PostsList username={displayUser?.username}/>
       </ScrollView>
 
       <EditProfileModal
@@ -234,6 +257,7 @@ const ProfileScreen = () => {
       />
 
       <FollowersModal
+      targetUser={displayUser}
         isVisible={isFollowingModalVisible}
         onClose={() => {
           closeFollowersModal()
