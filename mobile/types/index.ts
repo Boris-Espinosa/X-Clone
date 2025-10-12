@@ -25,6 +25,7 @@ export interface Post {
   user: User;
   likes: string[];
   comments: Comment[];
+  hashtags: string[];
 }
 
 export interface Notification {

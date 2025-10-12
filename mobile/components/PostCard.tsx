@@ -20,6 +20,39 @@ interface PostCardProps {
 const PostCard = ({ currentUser, onDelete, onLike, onComment, isLiked, post }:PostCardProps) => {
     
     const isOwnPost = currentUser?._id === post.user._id;
+    const hasHashtag = post.content.includes("#")
+
+    const fragments: { text: string; isHashtag: boolean }[] = [];
+    const regex = /#\w+/g;
+
+    let lastIndex = 0;
+    let match;
+
+    while ((match = regex.exec(post.content)) !== null) {
+        const start = match.index;
+        const end = regex.lastIndex;
+
+        if (lastIndex < start) {
+            fragments.push({
+                text: post.content.slice(lastIndex, start),
+                isHashtag: false,
+            });
+        }
+
+        fragments.push({
+            text: match[0],
+            isHashtag: true,
+        });
+
+        lastIndex = end;
+    }
+
+    if (lastIndex < post.content.length) {
+        fragments.push({
+            text: post.content.slice(lastIndex),
+            isHashtag: false,
+        });
+    }
 
     const { followUser, isLoading } = useFollow()
 
@@ -159,9 +192,13 @@ const PostCard = ({ currentUser, onDelete, onLike, onComment, isLiked, post }:Po
                     )}
                 </View>
 
-                {post.content && (
-                    <Text className='text-gray-900 text-base leading-5 mb-3'>{post.content}</Text>
-                )}
+                <Text>
+                    {post.content && hasHashtag && fragments.map((frag, index) => (
+                            <Text key={index} className={`${frag.isHashtag ? "text-blue-400" : "text-gray-900"}`}>{frag.text}</Text>
+                        ))
+                    }
+                </Text>
+                
                 {post.image && (
                     <TouchableOpacity onPress={() => {
                         if(typeof post.image != "undefined")

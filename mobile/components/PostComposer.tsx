@@ -33,7 +33,7 @@ const PostComposer = () => {
             <Image source={{ uri: currentUser.profilePicture || user?.imageUrl }} className='w-12 h-12 rounded-full mr-3' />
             <View className='flex-1'>
                 <TextInput
-                    className='text-gray-900 text-lg'
+                    className={`text-gray-900 text-lg`}
                     placeholder='What&apos;s happening?'
                     placeholderTextColor={'#657786'}
                     multiline

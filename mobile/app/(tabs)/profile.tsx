@@ -21,8 +21,6 @@ import ZoomPictureModal from '@/components/ZoomPictureModal';
 import useUserProfile from '@/hooks/useUserProfile';
 import { useLocalSearchParams } from 'expo-router';
 
-//TODO: add go to profile when clicking users on home screen
-//TODO: add modal to show followers/following and filter by name
 
 const ProfileScreen = () => {
   const params = useLocalSearchParams<{ username?: string}>()
