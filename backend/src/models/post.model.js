@@ -22,6 +22,12 @@ const postSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Comment'
     }],
+    hashtags: [{
+        type: String,
+        trim: true,
+        lowercase: true,
+        default: '',
+    }]
     }, { timestamps: true });
 
 const Post = mongoose.model('Post', postSchema);

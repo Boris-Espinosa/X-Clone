@@ -6,8 +6,6 @@ import { useCurrentUser } from "./useCurrentUser"
 import * as ImagePicker from 'expo-image-picker'
 import * as ImageManipulator from 'expo-image-manipulator';
 
-//TODO: Implement follow and unfollow functionality
-
 
 export const useProfile = () => {
     const api = useApiClient()

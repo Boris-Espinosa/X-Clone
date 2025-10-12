@@ -61,10 +61,20 @@ export const getUserPosts = asyncHandler(async (req, res) => {
 
 export const createPost = asyncHandler(async (req, res) => {
     const { userId } = getAuth(req);
-    const { content, image } = req.body;
+    const { content, image, hashtags } = req.body;
 
     if (!content && !req.file && !image) {
         return res.status(400).json({ message: 'Post content or image is required' });
+    }
+    
+    let hashtagsArray = [];
+    try {
+        if (hashtags) {
+            hashtagsArray = JSON.parse(hashtags);
+        }
+    } catch (error) {
+        console.error("hashtags no es un JSON válido", error);
+        hashtagsArray = [];
     }
 
     const user = await User.findOne({ clerkId: userId });
@@ -144,6 +154,7 @@ export const createPost = asyncHandler(async (req, res) => {
             user: user._id,
             content: content || '',
             image: imageUrl,
+            hashtags: hashtagsArray,
         };
 
         const post = await Post.create(postData);
@@ -151,22 +162,22 @@ export const createPost = asyncHandler(async (req, res) => {
         const populatedPost = await Post.findById(post._id)
             .populate('user', 'username firstName lastName profilePicture');
 
-        res.status(201).json({ 
-            post: populatedPost, 
-            message: 'Post created successfully' 
+        res.status(201).json({
+            post: populatedPost,
+            message: 'Post created successfully'
         });
 
     } catch (error) {
         if (error.name === 'ValidationError') {
-            return res.status(400).json({ 
-                message: 'Validation error', 
-                details: error.message 
+            return res.status(400).json({
+                message: 'Validation error',
+                details: error.message
             });
         }
         
-        return res.status(500).json({ 
-            message: 'Error creating post', 
-            details: error.message 
+        return res.status(500).json({
+            message: 'Error creating post',
+            details: error.message
         });
     }
 })

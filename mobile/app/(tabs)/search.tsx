@@ -7,11 +7,11 @@ import { Feather } from '@expo/vector-icons';
 //TODO: Implement search functionality and trending topics fetching from an API
 const SearchScreen = () => {
     const TRENDING_TOPICS = [
-    { topic: '#React Native', tweets: '120K'},
+    { topic: '#React_Native', tweets: '120K'},
     { topic: '#Expo', tweets: '80K' },
     { topic: '#JavaScript', tweets: '200K' },
     { topic: '#TypeScript', tweets: '150K' },
-    { topic: '#Mobile Development', tweets: '90K' },
+    { topic: '#Mobile_Development', tweets: '90K' },
     ]
 
 

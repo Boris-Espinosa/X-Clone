@@ -5,7 +5,6 @@ import { useComments } from '@/hooks/useComments';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { Feather } from '@expo/vector-icons';
 
-//TODO: Add likes to comments
 interface CommentsModalProps {
     selectedPost: Post | null;
     onClose: () => void;

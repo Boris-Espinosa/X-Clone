@@ -15,7 +15,16 @@ const useCreatePost = () => {
             const formData = new FormData()
 
             if (data.content) formData.append('content', data.content)
-
+            if (data.content.includes("#")) {
+                let hashtags: string[] | null= []
+                hashtags = data.content.match(/#\w+/g)
+                if (hashtags) {
+                    for (let i = 0; i < hashtags.length; i++) {
+                        hashtags[i] = hashtags[i].toLowerCase()
+                    }
+                    formData.append('hashtags', JSON.stringify(hashtags))
+                }
+            }
             if (data.imageUri) {
                 const uriParts = data.imageUri.split('.')
                 const fileType = uriParts[uriParts.length - 1].toLowerCase()

@@ -1,8 +1,6 @@
-import { useCurrentUser } from './useCurrentUser';
 import { User } from '@/types';
 
 export const useFollowers = (targetUser: User) => {
-
 
   const followers = (targetUser?.followers || []) as User[];
   const following = (targetUser?.following || []) as User[];
