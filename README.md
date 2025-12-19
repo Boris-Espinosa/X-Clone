@@ -8,6 +8,8 @@
 
 ## 🇬🇧 English
 
+> **📚 Bootcamp Project**: This project was developed as part of a React Native bootcamp to learn full-stack mobile application development.
+
 ### 📖 Description
 
 X-Clone is a full-stack social media mobile application that replicates the core features of Twitter/X. Built with React Native and Node.js, it allows users to share posts, follow others, interact through likes and comments, and stay connected through real-time notifications.
@@ -495,6 +497,8 @@ ISC
 <a name="español"></a>
 
 ## 🇪🇸 Español
+
+> **📚 Proyecto de Bootcamp**: Este proyecto fue desarrollado como parte de un bootcamp de React Native para aprender desarrollo full-stack de aplicaciones móviles.
 
 ### 📖 Descripción
 
