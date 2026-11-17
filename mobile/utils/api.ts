@@ -2,10 +2,12 @@ import axios, { AxiosInstance } from "axios";
 import { useAuth } from "@clerk/clerk-expo";
 import { Platform } from "react-native";
 
-const API_BASE_URL = process.env.EXPO_PLUBIC_API_URL || "https://x-clone-five-lyart.vercel.app/api";
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL;
 
 // this will basically create an authenticated api, pass the token into our headers
 export const createApiClient = (getToken: () => Promise<string | null>): AxiosInstance => {
+  if (!API_BASE_URL) throw new Error('EXPO_PUBLIC_API_URL is not defined');
+
   const api = axios.create({
     baseURL: API_BASE_URL,
     headers: {
