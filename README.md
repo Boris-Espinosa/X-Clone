@@ -2,6 +2,14 @@
 
 [English](#english) | [Español](#español)
 
+## 🌐 Live Demo / Demo en vivo
+
+🔗 **EN:** [https://x-clone-pi-rouge.vercel.app](https://x-clone-pi-rouge.vercel.app)
+
+> ⚠️ **EN:** The backend runs on Render's free plan, so the first load may take up to a minute. The web design is still being tuned; the mobile app is the reference experience.
+>
+> ⚠️ **ES:** El backend corre en el plan gratuito de Render, así que la primera carga puede tardar hasta un minuto. El diseño web aún se está ajustando y la app móvil es la experiencia de referencia.
+
 ---
 
 <a name="english"></a>
@@ -28,7 +36,7 @@ X-Clone is a full-stack social media mobile application that replicates the core
 #### Mobile Frontend
 
 - **React Native** - Cross-platform native mobile framework
-- **Expo** (SDK 52) - Development platform and build tools
+- **Expo** (SDK 54) - Development platform and build tools
 - **TypeScript** - Static typing for JavaScript
 - **Expo Router** - File-based routing system
 - **NativeWind** - Tailwind CSS for React Native
@@ -56,7 +64,8 @@ X-Clone is a full-stack social media mobile application that replicates the core
 
 #### Deployment & Services
 
-- **Vercel** - Backend serverless hosting
+- **Render** - Backend Web Service hosting
+- **Vercel** - Web frontend hosting
 - **MongoDB Atlas** - Cloud database
 - **Cloudinary CDN** - Global image delivery
 - **Clerk** - Cloud authentication service
@@ -65,7 +74,7 @@ X-Clone is a full-stack social media mobile application that replicates the core
 
 **Backend:**
 
-- Node.js (v18 or higher)
+- Node.js (v20 or higher)
 - MongoDB (local or Atlas)
 - Cloudinary account
 - Clerk account
@@ -73,7 +82,7 @@ X-Clone is a full-stack social media mobile application that replicates the core
 
 **Mobile:**
 
-- Node.js (v18 or higher)
+- Node.js (v20 or higher)
 - Expo CLI
 - iOS Simulator (Mac) or Android Studio
 - Physical device for testing (recommended)
@@ -98,13 +107,14 @@ Create a `.env` file in the `backend` directory:
 
 ```env
 PORT=5000
-MONGODB_URI=your_mongodb_connection_string
+MONGO_URI=your_mongodb_connection_string
 CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
 CLERK_SECRET_KEY=your_clerk_secret_key
 CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
 CLOUDINARY_API_KEY=your_cloudinary_api_key
 CLOUDINARY_API_SECRET=your_cloudinary_api_secret
 ARCJET_KEY=your_arcjet_key
+ARCJET_ENV=development
 NODE_ENV=development
 ```
 
@@ -128,6 +138,8 @@ EXPO_PUBLIC_API_URL=http://localhost:5000/api
 EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
 ```
 
+To point the app at the deployed API, use `EXPO_PUBLIC_API_URL=https://tu-backend.onrender.com/api` (end with `/api`, no trailing slash).
+
 Start the Expo development server:
 
 ```bash
@@ -150,21 +162,21 @@ npx expo start
 
 ### 📡 API Endpoints
 
-#### Authentication (`/api/auth`)
+#### Authentication (`/api/users`)
 
-| Method | Endpoint     | Description          | Auth Required |
-| ------ | ------------ | -------------------- | ------------- |
-| POST   | `/sync-user` | Sync user from Clerk | Yes           |
+| Method | Endpoint | Description          | Auth Required |
+| ------ | -------- | -------------------- | ------------- |
+| POST   | `/sync`  | Sync user from Clerk | Yes           |
 
 #### Users (`/api/users`)
 
 | Method | Endpoint                | Description                  | Auth Required |
 | ------ | ----------------------- | ---------------------------- | ------------- |
 | GET    | `/profile/:username`    | Get user profile by username | No            |
-| GET    | `/current`              | Get current user profile     | Yes           |
-| PATCH  | `/profile`              | Update user profile          | Yes           |
-| PATCH  | `/profile-picture`      | Update profile picture       | Yes           |
-| PATCH  | `/banner`               | Update banner image          | Yes           |
+| GET    | `/me`                   | Get current user profile     | Yes           |
+| PUT    | `/profile`              | Update user profile          | Yes           |
+| PUT    | `/profile/picture`      | Update profile picture       | Yes           |
+| PUT    | `/profile/banner`       | Update banner image          | Yes           |
 | POST   | `/follow/:targetUserId` | Follow/unfollow a user       | Yes           |
 
 #### Posts (`/api/posts`)
@@ -181,24 +193,24 @@ npx expo start
 
 | Method | Endpoint           | Description              | Auth Required |
 | ------ | ------------------ | ------------------------ | ------------- |
-| POST   | `/`                | Create a comment on post | Yes           |
+| POST   | `/post/:postId`    | Create a comment on post | Yes           |
 | GET    | `/post/:postId`    | Get comments for a post  | No            |
 | DELETE | `/:commentId`      | Delete a comment         | Yes           |
 | POST   | `/:commentId/like` | Like/unlike a comment    | Yes           |
 
 #### Notifications (`/api/notifications`)
 
-| Method | Endpoint | Description           | Auth Required |
-| ------ | -------- | --------------------- | ------------- |
-| GET    | `/`      | Get all notifications | Yes           |
-| PATCH  | `/read`  | Mark as read          | Yes           |
+| Method | Endpoint           | Description           | Auth Required |
+| ------ | ------------------ | --------------------- | ------------- |
+| GET    | `/`                | Get all notifications | Yes           |
+| DELETE | `/:notificationId` | Delete a notification | Yes           |
 
 ### 📝 API Request Examples
 
 #### Sync User (First Login)
 
 ```bash
-POST /api/auth/sync-user
+POST /api/users/sync
 Authorization: Bearer <clerk_jwt_token>
 ```
 
@@ -242,7 +254,7 @@ X-Clone/
 │   │   │   ├── messages.tsx      # Messages (TODO)
 │   │   │   └── profile.tsx       # User profile
 │   │   ├── _layout.tsx           # Root layout
-│   │   └── modal.tsx             # Modal screens
+│   │   └── sso-callback.tsx      # Clerk SSO callback
 │   ├── components/               # Reusable components
 │   │   ├── PostCard.tsx          # Post display component
 │   │   ├── PostsList.tsx         # Posts feed list
@@ -260,7 +272,7 @@ X-Clone/
 │   ├── types/                    # TypeScript definitions
 │   ├── utils/                    # Utilities and helpers
 │   │   └── api.ts                # Axios API client
-│   ├── constants/                # App constants
+│   ├── data/                     # Mock data (conversations)
 │   └── package.json
 │
 ├── backend/                      # Node.js API
@@ -281,12 +293,15 @@ X-Clone/
 │   │   │   ├── comment.route.js
 │   │   │   └── notification.route.js
 │   │   ├── middleware/           # Custom middleware
-│   │   │   ├── protectRoute.js   # Auth middleware
-│   │   │   └── arcjet.js         # Security middleware
+│   │   │   ├── auth.middleware.js    # Auth middleware
+│   │   │   ├── arcjet.middleware.js  # Security middleware
+│   │   │   └── upload.middleware.js  # Image upload handling
 │   │   ├── config/               # Configuration
 │   │   │   ├── db.js             # MongoDB connection
-│   │   │   └── cloudinary.js     # Cloudinary setup
-│   │   └── index.js              # Server entry point
+│   │   │   ├── env.js            # Environment variables
+│   │   │   ├── cloudinary.js     # Cloudinary setup
+│   │   │   └── arcjet.js         # Arcjet setup
+│   │   └── server.js             # Server entry point
 │   └── package.json
 │
 ├── AGENTS.md                     # Development patterns & rules
@@ -318,8 +333,8 @@ The application uses **Clerk** for authentication. Users authenticate through Cl
   lastName: String,
   profilePicture: String (Cloudinary URL),
   bannerImage: String (Cloudinary URL),
-  bio: String (max 120 chars),
-  location: String (max 40 chars),
+  bio: String (max 160 chars),
+  location: String,
   followers: [ObjectId] (ref: User),
   following: [ObjectId] (ref: User),
   createdAt: Date,
@@ -363,7 +378,7 @@ The application uses **Clerk** for authentication. Users authenticate through Cl
   to: ObjectId (ref: User, required),
   type: String (enum: ['follow', 'like', 'comment']),
   post: ObjectId (ref: Post),
-  read: Boolean (default: false),
+  comment: ObjectId (ref: Comment),
   createdAt: Date,
   updatedAt: Date
 }
@@ -384,7 +399,7 @@ The application uses **Clerk** for authentication. Users authenticate through Cl
 - ✅ Create posts with text and images
 - ✅ Like/unlike posts
 - ✅ Delete own posts
-- ✅ Personalized feed (posts from followed users)
+- ✅ Feed with all posts (newest first)
 - ✅ Automatic hashtag extraction
 
 **Comments:**
@@ -405,7 +420,7 @@ The application uses **Clerk** for authentication. Users authenticate through Cl
 - ✅ Follow notifications
 - ✅ Like notifications
 - ✅ Comment notifications
-- ✅ Mark as read functionality
+- ✅ Delete notifications
 
 **UI/UX:**
 
@@ -448,17 +463,19 @@ The project follows industry best practices documented in `AGENTS.md`:
 
 ### 🚢 Deployment
 
-**Backend:**
+**Backend (Render):**
 
-- Deployed on **Vercel** (serverless functions)
+- Web Service with Root Directory `backend` and Start Command `npm start`
 - Database on **MongoDB Atlas**
-- Images hosted on **Cloudinary CDN**
+- Images on **Cloudinary**
+- Protection with **Arcjet**
 
-**Mobile:**
+**Web frontend (Vercel):**
 
-- Built with **Expo EAS Build**
-- Distributed via **Expo Go** (development)
-- Can be published to App Store / Google Play
+- Root Directory `mobile`
+- Build Command `npx expo export --platform web`
+- Output Directory `dist`
+- Environment variables: `EXPO_PUBLIC_API_URL` and `EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY`
 
 ### 🧪 Testing
 
@@ -518,7 +535,7 @@ X-Clone es una aplicación móvil de redes sociales full-stack que replica las c
 #### Frontend Móvil
 
 - **React Native** - Framework multiplataforma para móviles nativos
-- **Expo** (SDK 52) - Plataforma de desarrollo y herramientas de build
+- **Expo** (SDK 54) - Plataforma de desarrollo y herramientas de build
 - **TypeScript** - Tipado estático para JavaScript
 - **Expo Router** - Sistema de enrutamiento basado en archivos
 - **NativeWind** - Tailwind CSS para React Native
@@ -546,7 +563,8 @@ X-Clone es una aplicación móvil de redes sociales full-stack que replica las c
 
 #### Deployment y Servicios
 
-- **Vercel** - Hosting serverless del backend
+- **Render** - Web Service del backend
+- **Vercel** - Hosting del frontend web
 - **MongoDB Atlas** - Base de datos en la nube
 - **Cloudinary CDN** - Entrega global de imágenes
 - **Clerk** - Servicio de autenticación en la nube
@@ -555,7 +573,7 @@ X-Clone es una aplicación móvil de redes sociales full-stack que replica las c
 
 **Backend:**
 
-- Node.js (v18 o superior)
+- Node.js (v20 o superior)
 - MongoDB (local o Atlas)
 - Cuenta de Cloudinary
 - Cuenta de Clerk
@@ -563,7 +581,7 @@ X-Clone es una aplicación móvil de redes sociales full-stack que replica las c
 
 **Móvil:**
 
-- Node.js (v18 o superior)
+- Node.js (v20 o superior)
 - Expo CLI
 - iOS Simulator (Mac) o Android Studio
 - Dispositivo físico para pruebas (recomendado)
@@ -588,13 +606,14 @@ Crea un archivo `.env` en el directorio `backend`:
 
 ```env
 PORT=5000
-MONGODB_URI=tu_cadena_de_conexion_mongodb
+MONGO_URI=tu_cadena_de_conexion_mongodb
 CLERK_PUBLISHABLE_KEY=tu_clerk_publishable_key
 CLERK_SECRET_KEY=tu_clerk_secret_key
 CLOUDINARY_CLOUD_NAME=tu_nombre_de_cloudinary
 CLOUDINARY_API_KEY=tu_api_key_de_cloudinary
 CLOUDINARY_API_SECRET=tu_api_secret_de_cloudinary
 ARCJET_KEY=tu_arcjet_key
+ARCJET_ENV=development
 NODE_ENV=development
 ```
 
@@ -618,6 +637,8 @@ EXPO_PUBLIC_API_URL=http://localhost:5000/api
 EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY=tu_clerk_publishable_key
 ```
 
+Para apuntar la app a la API desplegada, usa `EXPO_PUBLIC_API_URL=https://tu-backend.onrender.com/api` (termina en `/api` y sin barra final).
+
 Inicia el servidor de desarrollo de Expo:
 
 ```bash
@@ -640,21 +661,21 @@ npx expo start
 
 ### 📡 Endpoints de la API
 
-#### Autenticación (`/api/auth`)
+#### Autenticación (`/api/users`)
 
-| Método | Endpoint     | Descripción                     | Requiere Auth |
-| ------ | ------------ | ------------------------------- | ------------- |
-| POST   | `/sync-user` | Sincronizar usuario desde Clerk | Sí            |
+| Método | Endpoint | Descripción                     | Requiere Auth |
+| ------ | -------- | ------------------------------- | ------------- |
+| POST   | `/sync`  | Sincronizar usuario desde Clerk | Sí            |
 
 #### Usuarios (`/api/users`)
 
 | Método | Endpoint                | Descripción                       | Requiere Auth |
 | ------ | ----------------------- | --------------------------------- | ------------- |
 | GET    | `/profile/:username`    | Obtener perfil por username       | No            |
-| GET    | `/current`              | Obtener perfil del usuario actual | Sí            |
-| PATCH  | `/profile`              | Actualizar perfil de usuario      | Sí            |
-| PATCH  | `/profile-picture`      | Actualizar foto de perfil         | Sí            |
-| PATCH  | `/banner`               | Actualizar imagen de banner       | Sí            |
+| GET    | `/me`                   | Obtener perfil del usuario actual | Sí            |
+| PUT    | `/profile`              | Actualizar perfil de usuario      | Sí            |
+| PUT    | `/profile/picture`      | Actualizar foto de perfil         | Sí            |
+| PUT    | `/profile/banner`       | Actualizar imagen de banner       | Sí            |
 | POST   | `/follow/:targetUserId` | Seguir/dejar de seguir usuario    | Sí            |
 
 #### Publicaciones (`/api/posts`)
@@ -671,24 +692,24 @@ npx expo start
 
 | Método | Endpoint           | Descripción                        | Requiere Auth |
 | ------ | ------------------ | ---------------------------------- | ------------- |
-| POST   | `/`                | Crear comentario en publicación    | Sí            |
+| POST   | `/post/:postId`    | Crear comentario en publicación    | Sí            |
 | GET    | `/post/:postId`    | Obtener comentarios de publicación | No            |
 | DELETE | `/:commentId`      | Eliminar un comentario             | Sí            |
 | POST   | `/:commentId/like` | Dar/quitar like a comentario       | Sí            |
 
 #### Notificaciones (`/api/notifications`)
 
-| Método | Endpoint | Descripción                      | Requiere Auth |
-| ------ | -------- | -------------------------------- | ------------- |
-| GET    | `/`      | Obtener todas las notificaciones | Sí            |
-| PATCH  | `/read`  | Marcar como leído                | Sí            |
+| Método | Endpoint           | Descripción                      | Requiere Auth |
+| ------ | ------------------ | -------------------------------- | ------------- |
+| GET    | `/`                | Obtener todas las notificaciones | Sí            |
+| DELETE | `/:notificationId` | Eliminar una notificación        | Sí            |
 
 ### 📝 Ejemplos de Peticiones a la API
 
 #### Sincronizar Usuario (Primer Login)
 
 ```bash
-POST /api/auth/sync-user
+POST /api/users/sync
 Authorization: Bearer <clerk_jwt_token>
 ```
 
@@ -732,7 +753,7 @@ X-Clone/
 │   │   │   ├── messages.tsx      # Mensajes (TODO)
 │   │   │   └── profile.tsx       # Perfil de usuario
 │   │   ├── _layout.tsx           # Layout raíz
-│   │   └── modal.tsx             # Pantallas modales
+│   │   └── sso-callback.tsx      # Callback SSO de Clerk
 │   ├── components/               # Componentes reutilizables
 │   │   ├── PostCard.tsx          # Componente de publicación
 │   │   ├── PostsList.tsx         # Lista de publicaciones
@@ -750,7 +771,7 @@ X-Clone/
 │   ├── types/                    # Definiciones de TypeScript
 │   ├── utils/                    # Utilidades y helpers
 │   │   └── api.ts                # Cliente API de Axios
-│   ├── constants/                # Constantes de la app
+│   ├── data/                     # Datos mock (conversaciones)
 │   └── package.json
 │
 ├── backend/                      # API Node.js
@@ -771,12 +792,15 @@ X-Clone/
 │   │   │   ├── comment.route.js
 │   │   │   └── notification.route.js
 │   │   ├── middleware/           # Middleware personalizado
-│   │   │   ├── protectRoute.js   # Middleware de autenticación
-│   │   │   └── arcjet.js         # Middleware de seguridad
+│   │   │   ├── auth.middleware.js    # Middleware de autenticación
+│   │   │   ├── arcjet.middleware.js  # Middleware de seguridad
+│   │   │   └── upload.middleware.js  # Manejo de subida de imágenes
 │   │   ├── config/               # Configuración
 │   │   │   ├── db.js             # Conexión a MongoDB
-│   │   │   └── cloudinary.js     # Configuración de Cloudinary
-│   │   └── index.js              # Punto de entrada del servidor
+│   │   │   ├── env.js            # Variables de entorno
+│   │   │   ├── cloudinary.js     # Configuración de Cloudinary
+│   │   │   └── arcjet.js         # Configuración de Arcjet
+│   │   └── server.js             # Punto de entrada del servidor
 │   └── package.json
 │
 ├── AGENTS.md                     # Patrones y reglas de desarrollo
@@ -808,8 +832,8 @@ La aplicación utiliza **Clerk** para la autenticación. Los usuarios se autenti
   lastName: String,
   profilePicture: String (URL de Cloudinary),
   bannerImage: String (URL de Cloudinary),
-  bio: String (máx 120 caracteres),
-  location: String (máx 40 caracteres),
+  bio: String (máx 160 caracteres),
+  location: String,
   followers: [ObjectId] (ref: User),
   following: [ObjectId] (ref: User),
   createdAt: Date,
@@ -853,7 +877,7 @@ La aplicación utiliza **Clerk** para la autenticación. Los usuarios se autenti
   to: ObjectId (ref: User, requerido),
   type: String (enum: ['follow', 'like', 'comment']),
   post: ObjectId (ref: Post),
-  read: Boolean (default: false),
+  comment: ObjectId (ref: Comment),
   createdAt: Date,
   updatedAt: Date
 }
@@ -874,7 +898,7 @@ La aplicación utiliza **Clerk** para la autenticación. Los usuarios se autenti
 - ✅ Crear publicaciones con texto e imágenes
 - ✅ Dar/quitar like a publicaciones
 - ✅ Eliminar publicaciones propias
-- ✅ Feed personalizado (publicaciones de usuarios seguidos)
+- ✅ Feed con todas las publicaciones (más recientes primero)
 - ✅ Extracción automática de hashtags
 
 **Comentarios:**
@@ -895,7 +919,7 @@ La aplicación utiliza **Clerk** para la autenticación. Los usuarios se autenti
 - ✅ Notificaciones de seguimiento
 - ✅ Notificaciones de likes
 - ✅ Notificaciones de comentarios
-- ✅ Funcionalidad de marcar como leído
+- ✅ Eliminar notificaciones
 
 **UI/UX:**
 
@@ -938,17 +962,19 @@ El proyecto sigue las mejores prácticas de la industria documentadas en `AGENTS
 
 ### 🚢 Deployment
 
-**Backend:**
+**Backend (Render):**
 
-- Desplegado en **Vercel** (funciones serverless)
+- Web Service con Root Directory `backend` y Start Command `npm start`
 - Base de datos en **MongoDB Atlas**
-- Imágenes alojadas en **Cloudinary CDN**
+- Imágenes en **Cloudinary**
+- Protección con **Arcjet**
 
-**Móvil:**
+**Frontend web (Vercel):**
 
-- Construido con **Expo EAS Build**
-- Distribuido vía **Expo Go** (desarrollo)
-- Puede publicarse en App Store / Google Play
+- Root Directory `mobile`
+- Build Command `npx expo export --platform web`
+- Output Directory `dist`
+- Variables de entorno: `EXPO_PUBLIC_API_URL` y `EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY`
 
 ### 🧪 Testing
 
