@@ -12,7 +12,8 @@ export default function Index() {
           <View className="items-center">
             <Image
               source={require("../../assets/images/auth2.png")}
-              className="w-64 h-64 max-w-full"
+              className="max-w-full"
+              style={{ width: 256, height: 256 }}
               resizeMode="contain"
             />
           </View>
@@ -27,17 +28,20 @@ export default function Index() {
                 shadowOffset: { width: 0, height: 1 },
                 shadowOpacity: 0.2,
                 shadowRadius: 3,
-                elevation: 2
+                elevation: 2,
+                paddingVertical: 12,
+                paddingHorizontal: 24
               }}
               >
                 {isLoadingGoogle ? (<ActivityIndicator size="small"/>) : (
                   <View className="flex-row items-center justify-center">
                     <Image
                       source={require("../../assets/images/google.png")}
-                      className="size-10 mr-3"
+                      className="mr-3"
+                      style={{ width: 40, height: 40 }}
                       resizeMode="contain"
                       />
-                    <Text className="text-black font-medium text-base">Sign in with Google</Text>
+                    <Text className="text-black font-medium text-base" style={{ fontSize: 16 }}>Sign in with Google</Text>
                   </View>
                 )}
             </TouchableOpacity>
@@ -51,17 +55,20 @@ export default function Index() {
                 shadowOffset: { width: 0, height: 1 },
                 shadowOpacity: 0.2,
                 shadowRadius: 3,
-                elevation: 2
+                elevation: 2,
+                paddingVertical: 12,
+                paddingHorizontal: 24
               }}
               >
                 {isLoadingApple ? (<ActivityIndicator size="small"/>) : (
                   <View className="flex-row items-center justify-center">
                     <Image
                       source={require("../../assets/images/apple.png")}
-                      className="size-9 mr-3"
+                      className="mr-3"
+                      style={{ width: 36, height: 36 }}
                       resizeMode="contain"
                     />
-                    <Text className="text-black font-medium text-base">Sign in with Apple</Text>
+                    <Text className="text-black font-medium text-base" style={{ fontSize: 16 }}>Sign in with Apple</Text>
                   </View>
                 )}
             </TouchableOpacity>

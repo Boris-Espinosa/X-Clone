@@ -38,7 +38,7 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
 const WEB_CONTAINER_STYLE = {
   flex: 1,
   width: "100%",
-  maxWidth: 520,
+  maxWidth: 480,
   marginHorizontal: "auto",
 } as const;
 

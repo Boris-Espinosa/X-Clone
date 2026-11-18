@@ -34,47 +34,44 @@ export const useProfile = () => {
 
     const updateProfilePicturesMutation = useMutation({
         mutationFn: async ({ imageUri, isProfile }: { imageUri: string; isProfile: boolean }) => {
-
             const formData = new FormData()
-            const uriParts = imageUri.split('.')
-            const fileType = uriParts[uriParts.length - 1].toLowerCase()
-            
-            const mimeTypeMap: Record<string, string> = {
-                png: 'image/png',
-                gif: 'image/gif',
-                webp: 'image/webp',
-            }
-            const mimeType = mimeTypeMap[fileType] || 'image/jpeg'
+            const fieldName = isProfile ? 'profileImage' : 'bannerImage'
 
-            if (isProfile) {
-                console.log("Updating profile picture...")
-                
-                formData.append('profileImage', {
-                    uri: imageUri,
-                    name: `profileImage.${fileType}`,
-                    type: mimeType,
-                } as any)
-
-                return userApi.updateProfilePicture(api, formData)
+            if (Platform.OS === 'web') {
+                // El navegador no entiende { uri, name, type }: necesita un Blob real.
+                const blob = await fetch(imageUri).then((r) => r.blob())
+                formData.append(fieldName, blob, `${fieldName}.${blob.type.split('/')[1] || 'jpeg'}`)
             } else {
-                console.log("Updating banner picture...")
-                
-                formData.append('bannerImage', {
+                const uriParts = imageUri.split('.')
+                const fileType = uriParts[uriParts.length - 1].toLowerCase()
+
+                const mimeTypeMap: Record<string, string> = {
+                    png: 'image/png',
+                    gif: 'image/gif',
+                    webp: 'image/webp',
+                }
+                const mimeType = mimeTypeMap[fileType] || 'image/jpeg'
+
+                formData.append(fieldName, {
                     uri: imageUri,
-                    name: `bannerImage.${fileType}`,
+                    name: `${fieldName}.${fileType}`,
                     type: mimeType,
                 } as any)
-                
-                return userApi.updateProfileBanner(api, formData)
             }
+
+            // Sin Content-Type manual: el navegador pone el boundary.
+            return isProfile
+                ? userApi.updateProfilePicture(api, formData)
+                : userApi.updateProfileBanner(api, formData)
         },
         onSuccess: () => {
             console.log("Profile picture updated successfully")
             queryClient.invalidateQueries({ queryKey: ['currentUser'] })
         },
         onError: (error: any) => {
-            console.log("Error updating profile picture:", error)
-            Alert.alert("Error", error?.response?.data?.message || "An error occurred while updating the profile pictures.")
+            const message = error?.response?.data?.message || error?.response?.data?.error || "An error occurred while updating the profile pictures."
+            Alert.alert("Error", message)
+            console.error("API Error:", message)
         }
     })
 
