@@ -36,6 +36,11 @@ app.use("/api/notifications", notificationRoutes)
 // Global error handler
 app.use((err, req, res, next) => {
     console.error("Unhandled error:", err);
+    if (err.name === 'MulterError') {
+      return res.status(400).json({
+        message: err.code === 'LIMIT_FILE_SIZE' ? 'Image is too large. Maximum size is 5MB.' : err.message
+      });
+    }
     if (err.name === 'MongooseError' || err.name === 'MongoServerError') {
       return res.status(503).json({ message: 'Database unavailable' });
     }

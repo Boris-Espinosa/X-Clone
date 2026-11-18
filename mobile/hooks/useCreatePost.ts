@@ -1,6 +1,6 @@
 import {useState} from 'react'
 import { useQueryClient, useMutation } from '@tanstack/react-query'
-import { Alert } from 'react-native'
+import { Alert, Platform } from 'react-native'
 import * as ImagePicker from 'expo-image-picker'
 import { useApiClient } from '../utils/api'
 
@@ -11,7 +11,7 @@ const useCreatePost = () => {
     const queryClient = useQueryClient()
 
     const createPostMutation = useMutation({
-        mutationFn: (data: {content: string; imageUri?: string}) => {
+        mutationFn: async (data: {content: string; imageUri?: string}) => {
             const formData = new FormData()
 
             if (data.content) formData.append('content', data.content)
@@ -26,25 +26,30 @@ const useCreatePost = () => {
                 }
             }
             if (data.imageUri) {
-                const uriParts = data.imageUri.split('.')
-                const fileType = uriParts[uriParts.length - 1].toLowerCase()
+                if (Platform.OS === 'web') {
+                    // El navegador no entiende { uri, name, type }: necesita un Blob real.
+                    const blob = await fetch(data.imageUri).then((r) => r.blob())
+                    formData.append('image', blob, `image.${blob.type.split('/')[1] || 'jpeg'}`)
+                } else {
+                    const uriParts = data.imageUri.split('.')
+                    const fileType = uriParts[uriParts.length - 1].toLowerCase()
 
-                const mimeTypeMap: Record<string, string> = {
-                    png: 'image/png',
-                    gif: 'image/gif',
-                    webp: 'image/webp',
+                    const mimeTypeMap: Record<string, string> = {
+                        png: 'image/png',
+                        gif: 'image/gif',
+                        webp: 'image/webp',
+                    }
+                    const mimeType = mimeTypeMap[fileType] || 'image/jpeg'
+
+                    formData.append('image', {
+                        uri: data.imageUri,
+                        name: `image.${fileType}`,
+                        type: mimeType,
+                    } as any)
                 }
-                const mimeType = mimeTypeMap[fileType] || 'image/jpeg'
-
-                formData.append('image', {
-                    uri: data.imageUri,
-                    name: `image.${fileType}`,
-                    type: mimeType,
-                } as any)
             }
-            return api.post("/posts", formData, {
-                headers: {'Content-Type': 'multipart/form-data'}
-            })
+            // Sin Content-Type manual: el navegador/xhr pone el boundary.
+            return api.post("/posts", formData)
         },
         onSuccess: () => {
             setContent('')
@@ -52,9 +57,10 @@ const useCreatePost = () => {
             queryClient.invalidateQueries({queryKey: ['posts']})
             Alert.alert('Success', 'Post created successfully!')
         },
-        onError: (error) => {
-            Alert.alert('Error', 'Failed to create post. Please try again.')
-            console.error('Create post failed:', error)
+        onError: (error: any) => {
+            const message = error?.response?.data?.message || 'Failed to create post. Please try again.'
+            Alert.alert('Error', message)
+            console.error('API Error:', message)
         },
     })
 

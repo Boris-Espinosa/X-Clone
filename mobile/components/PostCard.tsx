@@ -1,9 +1,10 @@
 import { useFollow } from '@/hooks/useFollow';
 import { Post, User } from '@/types';
+import { confirmAction } from '@/utils/confirm';
 import { FormatDate, formatNumber } from '@/utils/formatters';
 import { Feather } from '@expo/vector-icons';
 import { useState } from 'react';
-import { View, Text, Alert, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Menu, MenuTrigger, MenuOptions, MenuOption } from 'react-native-popup-menu';
 import ZoomPictureModal from './ZoomPictureModal';
 import { router } from 'expo-router';
@@ -64,14 +65,12 @@ const PostCard = ({ currentUser, onDelete, onLike, onComment, isLiked, post }:Po
         post.user.followers.some(followerId => followerId.toString() === currentUser._id.toString());
 
     const handleDelete = () => {
-        Alert.alert("Delete Post", "Are you sure you want to delete this post?", [
-            { text: "Cancel", style: "cancel" },
-            {
-                text: "Delete",
-                style: "destructive",
-                onPress: () => onDelete(post._id),
-            },
-        ]);
+        confirmAction({
+            title: "Delete Post",
+            message: "Are you sure you want to delete this post?",
+            confirmLabel: "Delete",
+            onConfirm: () => onDelete(post._id),
+        });
     }
 
     const handleFollowToggle = () => {
@@ -193,10 +192,11 @@ const PostCard = ({ currentUser, onDelete, onLike, onComment, isLiked, post }:Po
                 </View>
 
                 <Text>
-                    {post.content && hasHashtag && fragments.map((frag, index) => (
+                    {hasHashtag
+                        ? fragments.map((frag, index) => (
                             <Text key={index} className={`${frag.isHashtag ? "text-blue-400" : "text-gray-900"}`}>{frag.text}</Text>
                         ))
-                    }
+                        : post.content}
                 </Text>
                 
                 {post.image && (

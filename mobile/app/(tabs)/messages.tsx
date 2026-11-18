@@ -1,6 +1,7 @@
 import { View, Text, Alert, TouchableOpacity, TextInput, ScrollView, Image, Modal } from 'react-native';
 import React, { useState } from 'react'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { confirmAction } from '@/utils/confirm';
 import { CONVERSATIONS, ConversationType } from '@/data/conversations';
 import { Feather } from '@expo/vector-icons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
@@ -15,12 +16,12 @@ const MessageScreen = () => {
   const [newMessage, setNewMessage] = useState('')
 
   const deleteConversation = (id: number) => {
-    Alert.alert("Delete Conversation", "Are you sure you want to delete this conversation?", [
-      { text: "Cancel" },
-      { text: "Delete", style: "destructive", onPress: () => {
-        setConversationsList((prev) => prev.filter(convo => convo.id !== id))
-      }}
-    ])
+    confirmAction({
+      title: "Delete Conversation",
+      message: "Are you sure you want to delete this conversation?",
+      confirmLabel: "Delete",
+      onConfirm: () => setConversationsList((prev) => prev.filter(convo => convo.id !== id)),
+    })
   }
 
   const openConversation = (conversation: ConversationType) => {

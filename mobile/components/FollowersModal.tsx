@@ -4,9 +4,10 @@ import { useFollow } from "@/hooks/useFollow";
 import { useFollowers } from "@/hooks/useFollowers";
 
 import { User } from "@/types";
+import { confirmAction } from "@/utils/confirm";
 import { Feather } from "@expo/vector-icons";
 import { useState } from "react";
-import { Alert, Image, Modal, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Image, Modal, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 interface followersModalProps {
     targetUser: User;
@@ -25,10 +26,12 @@ const FollowersModal = ({targetUser, isVisible, isFollowersVisible, isFollowingV
     const [query, setQuery] = useState("")
 
     const handleUnfollowUser = (follow: User) => {
-        Alert.alert("Unfollow", `Are you sure you want to unfollow ${follow.username}?`, [
-            {"style": "cancel", "text": "Cancel"},
-            {"text": "Yes", "style": "destructive", "onPress": () => followUser(follow.clerkId)}
-        ])
+        confirmAction({
+            title: "Unfollow",
+            message: `Are you sure you want to unfollow ${follow.username}?`,
+            confirmLabel: "Yes",
+            onConfirm: () => followUser(follow.clerkId),
+        })
     }
     return (
         <Modal visible={isVisible} animationType="slide" presentationStyle="pageSheet">

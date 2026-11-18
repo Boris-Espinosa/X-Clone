@@ -1,7 +1,8 @@
-import { View, Text, Alert, Image, TouchableOpacity } from 'react-native'
+import { View, Text, Image, TouchableOpacity } from 'react-native'
 import React from 'react'
 import { Notification } from '@/types';
 import { Feather } from '@expo/vector-icons';
+import { confirmAction } from '@/utils/confirm';
 import { FormatDate } from '@/utils/formatters';
 
 
@@ -36,10 +37,12 @@ const NotificationCard = ({ onDelete, notification }: NotificationCardProps) => 
     }
 
     const handleDelete = () => {
-        Alert.alert("Delete Notification", "Are you sure you want to delete this notification?", [
-            { text: "Cancel", style: "cancel" },
-            { text: "Delete", style: "destructive", onPress: () => onDelete(notification._id) }
-        ])
+        confirmAction({
+            title: "Delete Notification",
+            message: "Are you sure you want to delete this notification?",
+            confirmLabel: "Delete",
+            onConfirm: () => onDelete(notification._id),
+        })
     }
 
   return (
