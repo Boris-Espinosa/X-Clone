@@ -12,14 +12,14 @@ export default function Index() {
           <View className="items-center">
             <Image
               source={require("../../assets/images/auth2.png")}
-              className="size-96"
+              className="w-64 h-64 max-w-full"
               resizeMode="contain"
             />
           </View>
 
           <View className="flex-col gap-2">
             <TouchableOpacity
-              className="flex-row bg-white items-center justify-center border border-gray-300 rounded-full py-3 px-6"
+              className="flex-row bg-white items-center justify-center border border-gray-300 rounded-full py-3 px-6 w-full max-w-sm self-center"
               onPress={() => {handleSocialAuth("oauth_google", "google")}}
               disabled={isLoadingGoogle}
               style={{
@@ -43,7 +43,7 @@ export default function Index() {
             </TouchableOpacity>
             
             <TouchableOpacity
-              className="flex-row bg-white items-center justify-center border border-gray-300 rounded-full py-3 px-6"
+              className="flex-row bg-white items-center justify-center border border-gray-300 rounded-full py-3 px-6 w-full max-w-sm self-center"
               onPress={() => {handleSocialAuth("oauth_apple", "apple")}}
               disabled={isLoadingApple}
               style={{
