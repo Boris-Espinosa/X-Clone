@@ -8,9 +8,12 @@ import { MenuProvider } from "react-native-popup-menu";
 
 const queryClient = new QueryClient()
 
+const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
+if (!publishableKey) throw new Error("EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY no está definida");
+
 export default function RootLayout() {
   return (
-    <ClerkProvider tokenCache={tokenCache}>
+    <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
       <QueryClientProvider client={queryClient}>
         <MenuProvider>
           <Stack screenOptions={{ headerShown: false }}>
